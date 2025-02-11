@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "../UI/Button";
 import { useSetRecoilState } from "recoil";
 import { authModalState } from "@/atoms/authModalAtom";
@@ -12,19 +12,22 @@ type SignupProps = {};
 
 const Signup: React.FC<SignupProps> = () => {
   const setAuthModalState = useSetRecoilState(authModalState);
-  const handleClick = (type: "login" | "register" | "forgotPassword") => {
-    setAuthModalState((prev) => ({ ...prev, type: "login" }));
-  };
+
   const [inputs, setInputs] = useState({ email: "", userName: "", password: "" });
+  const router = useRouter();
 
   const [createUserWithEmailAndPassword, user, loading, error] = useCreateUserWithEmailAndPassword(auth);
+
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const handleClick = (type: "login" | "register" | "forgotPassword") => {
+    setAuthModalState((prev) => ({ ...prev, type }));
+  };
+
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const router = useRouter();
     if (!inputs.email || !inputs.password || !inputs.userName) return alert("Please fill all fields");
     try {
       toast.loading("Creating your account", { position: "top-center", toastId: "loadingToast" });
@@ -49,9 +52,20 @@ const Signup: React.FC<SignupProps> = () => {
       toast.dismiss("loadingToast");
     }
   };
+  useEffect(() => {
+    if (error) {
+      if (error.message == "Firebase: Error (auth/email-already-in-use).") {
+        toast.error('User Already exists. Please Login')
+      }
+      else {
+        toast.error(error.message);
+      }
+    };
+  }, [error]);
+
 
   return (
-    <form onSubmit={handleRegister} className="space-y-6  pb-2 max-w-md mx-auto">
+    <form onSubmit={handleRegister} className="space-y-6 pb-2 max-w-md mx-auto">
       <div className="flex justify-center">
         <h3 className="inline-flex items-center text-2xl md:text-3xl font-bold text-white">
           Register
@@ -59,10 +73,7 @@ const Signup: React.FC<SignupProps> = () => {
       </div>
 
       <div>
-        <label
-          htmlFor="email"
-          className="text-sm md:text-base font-medium block mb-2 text-gray-300"
-        >
+        <label htmlFor="email" className="text-sm md:text-base font-medium block mb-2 text-gray-300">
           Email
         </label>
         <input
@@ -71,16 +82,14 @@ const Signup: React.FC<SignupProps> = () => {
           name="email"
           id="email"
           className="border-2 outline-none sm:text-sm md:text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
-          placeholder="email@gamil.com"
+          placeholder="email@example.com"
+          required
         />
       </div>
 
       <div>
-        <label
-          htmlFor="userName"
-          className="text-sm md:text-base font-medium block mb-2 text-gray-300"
-        >
-          UserName
+        <label htmlFor="userName" className="text-sm md:text-base font-medium block mb-2 text-gray-300">
+          Username
         </label>
         <input
           type="text"
@@ -89,14 +98,12 @@ const Signup: React.FC<SignupProps> = () => {
           id="userName"
           className="border-2 outline-none sm:text-sm md:text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
           placeholder="Your name"
+          required
         />
       </div>
 
       <div>
-        <label
-          htmlFor="password"
-          className="text-sm md:text-base font-medium block mb-2 text-gray-300"
-        >
+        <label htmlFor="password" className="text-sm md:text-base font-medium block mb-2 text-gray-300">
           Password
         </label>
         <input
@@ -106,6 +113,7 @@ const Signup: React.FC<SignupProps> = () => {
           id="password"
           className="border-2 outline-none sm:text-sm md:text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
           placeholder="*******"
+          required
         />
       </div>
 
@@ -114,11 +122,8 @@ const Signup: React.FC<SignupProps> = () => {
       </div>
 
       <div className="text-sm md:text-base font-medium text-gray-300 text-center">
-        Already have an account? {" "}
-        <a
-          onClick={() => handleClick("login")}
-          className="text-blue-500 hover:underline cursor-pointer"
-        >
+        Already have an account?{" "}
+        <a onClick={() => handleClick("login")} className="text-blue-500 hover:underline cursor-pointer">
           Log In
         </a>
       </div>
