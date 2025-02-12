@@ -1,8 +1,8 @@
 
-import { problems } from "@/components/mockProblems/problems";
 import Topbar from "@/components/Topbar/topbar";
 import Workspace from "@/components/Workspace/workspace";
 import useHasMounted from "@/hooks/useHasMounted";
+import { Problem } from "@/utils/types/problem";
 import React from "react";
 
 type ProblemPageProps = {
@@ -16,6 +16,7 @@ const ProblemPage: React.FC<ProblemPageProps> = () => {
 	return (
 		<div>
 			<Topbar problemPage />
+			<Workspace  />
 		</div>
 	);
 };

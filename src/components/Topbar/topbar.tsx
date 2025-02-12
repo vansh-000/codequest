@@ -6,12 +6,11 @@ import { auth } from "@/firebase/firebase";
 import { useSetRecoilState } from "recoil";
 import { authModalState } from "@/atoms/authModalAtom";
 import { useRouter } from "next/router";
-import { problems } from "../mockProblems/problems";
 import Image from "next/image";
 import Logout from "../UI/LogoutBtn";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { BsList } from "react-icons/bs";
-import Timer from "../Timer.tsx/timer";
+import Timer from "../Timer/timer";
 
 type TopbarProps = {
     problemPage?: boolean;
@@ -79,8 +78,7 @@ const Topbar: React.FC<TopbarProps> = ({ problemPage }) => {
                 </div>
             </nav>
             <div
-                className='absolute top-10 left-2/4 -translate-x-2/4  mx-auto bg-dark-layer-1 text-brand-orange p-2 rounded shadow-lg z-40 group-hover:scale-100 scale-0 
-		transition-all duration-300 ease-in-out'
+                className='absolute top-10 left-2/4 -translate-x-2/4  mx-auto bg-dark-layer-1 text-brand-orange p-2 rounded shadow-lg z-40 group-hover:scale-100 scale-0 transition-all duration-300 ease-in-out'
             >
                 <p className='text-sm'>Hello</p>
             </div>
