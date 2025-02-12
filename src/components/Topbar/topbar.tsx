@@ -23,12 +23,12 @@ const Topbar: React.FC<TopbarProps> = ({ problemPage }) => {
 
     return (
         <>
-            <nav className='relative flex h-[60px] w-full shrink-0 items-center px-5 bg-dark-layer-1 text-dark-gray-7'>
-                <div className={`flex w-full items-center justify-between max-w-[1200px] mx-auto`}>
-                    <Link href='/' className='flex items-center justify-center h-20'>
+            <nav className='relative flex h-[50px] w-full shrink-0 items-center px-5 bg-dark-layer-1 text-dark-gray-7'>
+                <div className={`flex w-full items-center justify-around mx-auto`}>
+                    <Link href='/' className='flex items-center justify-between h-20'>
                         <div className='flex items-center space-x-2'>
                             <div className="bg-white rounded-full">
-                                <Image src='/p2.png' alt='CodeQuest' height={50} width={50} />
+                                <Image src='/p2.png' alt='CodeQuest' height={40} width={40} />
                             </div>
                             <span className='text-2xl font-bold text-white'>CodeQuest</span>
                         </div>
