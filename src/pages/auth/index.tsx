@@ -1,13 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Code, Trophy, Users } from "lucide-react";
 import Button from "@/components/UI/Button";
 import Navbar from "@/components/Navbar/Navbar";
 import AuthModal from "@/components/Modals/AuthModal";
 import { useRecoilValue } from "recoil";
 import { authModalState } from "@/atoms/authModalAtom";
+import { useRouter } from "next/router";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/firebase/firebase";
 
 const HomePage: React.FC = () => {
   const authModal = useRecoilValue(authModalState);
+  const [user, loading, error] = useAuthState(auth);
+  const [pageLoading, setPageLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user) router.push("/");
+    if (!loading && !user) setPageLoading(false);
+  }, [user, router, loading]);
+
+  if (pageLoading) return null;
 
   return (
     <div className="bg-gradient-to-b from-black to-gray-900 min-h-screen text-gray-200">
@@ -30,20 +43,20 @@ const HomePage: React.FC = () => {
 
       <section className="py-16 sm:py-20 bg-stone-900">
         <div className="max-w-6xl mx-auto grid gap-8 sm:gap-10 md:grid-cols-2 lg:grid-cols-3 px-4 sm:px-6 lg:px-8">
-          <FeatureCard 
-            icon={<Code className="w-14 h-14 sm:w-16 sm:h-16 text-blue-400" />} 
-            title="Practice Problems" 
-            description="Solve a variety of coding problems to sharpen your skills." 
+          <FeatureCard
+            icon={<Code className="w-14 h-14 sm:w-16 sm:h-16 text-blue-400" />}
+            title="Practice Problems"
+            description="Solve a variety of coding problems to sharpen your skills."
           />
-          <FeatureCard 
-            icon={<Trophy className="w-14 h-14 sm:w-16 sm:h-16 text-green-400" />} 
-            title="Contests" 
-            description="Participate in coding contests and climb the leaderboard." 
+          <FeatureCard
+            icon={<Trophy className="w-14 h-14 sm:w-16 sm:h-16 text-green-400" />}
+            title="Contests"
+            description="Participate in coding contests and climb the leaderboard."
           />
-          <FeatureCard 
-            icon={<Users className="w-14 h-14 sm:w-16 sm:h-16 text-purple-400" />} 
-            title="Community" 
-            description="Join a community of coders, share knowledge, and collaborate." 
+          <FeatureCard
+            icon={<Users className="w-14 h-14 sm:w-16 sm:h-16 text-purple-400" />}
+            title="Community"
+            description="Join a community of coders, share knowledge, and collaborate."
           />
         </div>
       </section>
