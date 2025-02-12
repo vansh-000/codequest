@@ -4,7 +4,7 @@ type ButtonProps = {
     label: string;
     variant: 'primary' | 'secondary';
     onClick?: () => void;
-    fullWidth?: boolean; // Optional prop for full-width control
+    fullWidth?: boolean; 
 };
 
 const Button: React.FC<ButtonProps> = ({ label, variant, onClick, fullWidth = false }) => {
