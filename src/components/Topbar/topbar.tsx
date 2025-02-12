@@ -9,6 +9,9 @@ import { useRouter } from "next/router";
 import { problems } from "../mockProblems/problems";
 import Image from "next/image";
 import Logout from "../UI/LogoutBtn";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { BsList } from "react-icons/bs";
+import Timer from "../Timer.tsx/timer";
 
 type TopbarProps = {
     problemPage?: boolean;
@@ -31,26 +34,47 @@ const Topbar: React.FC<TopbarProps> = ({ problemPage }) => {
                             <span className='text-2xl font-bold text-white'>CodeQuest</span>
                         </div>
                     </Link>
-                    <div className="flex gap-x-3">
-                    {!user && (
-                        <div className='flex items-center space-x-4 flex-1 justify-end'>
-                            <Link href='/auth'>
-                                <Button label="Login" variant="primary" />
-                            </Link>
-                        </div>)}
-                    {user && (
-                        <div className='cursor-pointer group relative'>
-                            <Image src='/avatar.png' alt='Avatar' width={30} height={30} className='rounded-full' />
+                    {problemPage && (
+                        <div className='flex items-center gap-4 flex-1 justify-center'>
                             <div
-                                className='absolute top-10 left-2/4 -translate-x-2/4  mx-auto bg-dark-layer-1 text-brand-orange p-2 rounded shadow-lg 
-								z-40 group-hover:scale-100 scale-0 
-								transition-all duration-300 ease-in-out'
-                            >
-                                <p className='text-sm'>{user.email}</p>
+                                className='flex items-center justify-center rounded bg-dark-fill-3 hover:bg-dark-fill-2 h-8 w-8 cursor-pointer'>
+                                <FaChevronLeft />
+                            </div>
+                            <Link
+                                href='/'
+                                className='flex items-center gap-2 font-medium max-w-[170px] text-dark-gray-8 cursor-pointer'>
+                                <div>
+                                    <BsList />
+                                </div>
+                                <p>Problem List</p>
+                            </Link>
+                            <div
+                                className='flex items-center justify-center rounded bg-dark-fill-3 hover:bg-dark-fill-2 h-8 w-8 cursor-pointer'>
+                                <FaChevronRight />
                             </div>
                         </div>
                     )}
-                    {user && <Logout />}
+                    <div className="flex gap-x-3">
+                        {!user && (
+                            <div className='flex items-center space-x-4 flex-1 justify-end'>
+                                <Link href='/auth'>
+                                    <Button label="Login" variant="primary" />
+                                </Link>
+                            </div>)}
+                        {user && problemPage && <Timer />}
+                        {user && (
+                            <div className='cursor-pointer group relative'>
+                                <Image src='/avatar.png' alt='Avatar' width={30} height={30} className='rounded-full' />
+                                <div
+                                    className='absolute top-10 left-2/4 -translate-x-2/4  mx-auto bg-dark-layer-1 text-brand-orange p-2 rounded shadow-lg 
+								z-40 group-hover:scale-100 scale-0 
+								transition-all duration-300 ease-in-out'
+                                >
+                                    <p className='text-sm'>{user.email}</p>
+                                </div>
+                            </div>
+                        )}
+                        {user && <Logout />}
                     </div>
                 </div>
             </nav>
