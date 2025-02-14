@@ -23,7 +23,7 @@ const Topbar: React.FC<TopbarProps> = ({ problemPage }) => {
 
     return (
         <>
-            <nav className='relative flex h-[50px] w-full shrink-0 items-center px-5 bg-dark-layer-1 text-dark-gray-7'>
+            <nav className='relative flex h-[50px] w-full shrink-0 items-center px-1 bg-dark-layer-1 text-dark-gray-7'>
                 <div className={`flex w-full items-center justify-around mx-auto`}>
                     <Link href='/' className='flex items-center justify-between h-20'>
                         <div className='flex items-center space-x-2'>

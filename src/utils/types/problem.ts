@@ -6,7 +6,6 @@ export type Example = {
 	img?: string;
 };
 
-// local problem data
 export type Problem = {
 	id: string;
 	title: string;
