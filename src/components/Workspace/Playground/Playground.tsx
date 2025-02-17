@@ -2,23 +2,30 @@ import PreferenceNav from "./PreferenceNav/PreferenceNav";
 import Split from "react-split";
 import CodeMirror from "@uiw/react-codemirror";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
-import { javascript } from "@codemirror/lang-javascript";
+import { cpp } from "@codemirror/lang-cpp";
 import EditorFooter from "./EditorFooter";
 
 type PlaygroundProps = {
 };
 
 const Playground: React.FC<PlaygroundProps> = () => {
+	const boilerPlate =
+		`#include <bits/stdc++.h>
+using namespace std;
+int main() {
+  // Your code here
+  return 0;
+}`;
 	return (
 		<div className='flex flex-col bg-dark-layer-1 relative overflow-x-hidden'>
-			<PreferenceNav/>
+			<PreferenceNav />
 
 			<Split className='h-[calc(100vh-94px)]' direction='vertical' sizes={[60, 40]} minSize={60}>
 				<div className='w-full overflow-auto'>
 					<CodeMirror
-						value='Hello'
+						value={boilerPlate}
 						theme={vscodeDark}
-						extensions={[javascript()]}
+						extensions={[cpp()]}
 					/>
 				</div>
 				<div className='w-full px-5 overflow-auto'>
