@@ -1,5 +1,5 @@
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import Button from "../UI/Button";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/firebase/firebase";
@@ -20,56 +20,77 @@ const Topbar: React.FC<TopbarProps> = ({ problemPage }) => {
     const [user] = useAuthState(auth);
     const setAuthModalState = useSetRecoilState(authModalState);
     const router = useRouter();
+    const [showProfileTooltip, setShowProfileTooltip] = useState(false);
 
     return (
-        <>
-            <nav className='relative flex h-[50px] w-full shrink-0 items-center px-1 bg-dark-layer-1 text-dark-gray-7'>
-                <div className={`flex w-full items-center justify-around mx-auto`}>
-                    <Link href='/' className='flex items-center justify-between h-20'>
-                        <div className='flex items-center space-x-2'>
-                            <div className="bg-white rounded-full">
-                                <Image src='/p2.png' alt='CodeQuest' height={40} width={40} />
-                            </div>
-                            <span className='text-2xl font-bold text-white'>CodeQuest</span>
+        <div className="relative top-0 left-0 w-full z-50">
+            <nav className={`flex h-[50px] w-full shrink-0 items-center px-2 sm:px-4 ${problemPage ? 'bg-dark-layer-1 text-dark-gray-7' : 'shadow-md'}`}>
+                <div className={`flex w-full items-center justify-between max-w-7xl mx-auto`}>
+                    <Link href='/' className='flex items-center space-x-2'>
+                        <div className="bg-white rounded-full p-0.5">
+                            <Image
+                                src='/p2.png'
+                                alt='CodeQuest'
+                                height={32}
+                                width={32}
+                                className="transition-transform duration-200 hover:scale-105"
+                            />
                         </div>
+                        <span className='text-xl font-bold text-white hidden sm:inline'>CodeQuest</span>
                     </Link>
                     {problemPage && (
-                        <div className='flex items-center gap-4 flex-1 justify-center'>
-                            <div
-                                className='flex items-center justify-center rounded bg-dark-fill-3 hover:bg-dark-fill-2 h-8 w-8 cursor-pointer'>
+                        <div className='flex items-center gap-2 sm:gap-4 flex-1 justify-center max-w-md'>
+                            <button
+                                className='flex items-center justify-center rounded bg-dark-fill-3 hover:bg-dark-fill-2 h-8 w-8 cursor-pointer transition-colors'
+                                aria-label="Previous problem"
+                            >
                                 <FaChevronLeft />
-                            </div>
+                            </button>
                             <Link
                                 href='/'
-                                className='flex items-center gap-2 font-medium max-w-[170px] text-dark-gray-8 cursor-pointer'>
-                                <div>
+                                className='flex items-center gap-2 font-medium text-dark-gray-8 hover:text-white transition-colors'
+                            >
+                                <div className="text-lg">
                                     <BsList />
                                 </div>
-                                <p>Problem List</p>
+                                <p className="truncate">Problem List</p>
                             </Link>
-                            <div
-                                className='flex items-center justify-center rounded bg-dark-fill-3 hover:bg-dark-fill-2 h-8 w-8 cursor-pointer'>
+                            <button
+                                className='flex items-center justify-center rounded bg-dark-fill-3 hover:bg-dark-fill-2 h-8 w-8 cursor-pointer transition-colors'
+                                aria-label="Next problem"
+                            >
                                 <FaChevronRight />
-                            </div>
+                            </button>
                         </div>
                     )}
-                    <div className="flex gap-x-3">
+                    <div className="flex items-center gap-x-3">
+                        {user && problemPage && <Timer />}
                         {!user && (
                             <div className='flex items-center space-x-4 flex-1 justify-end'>
                                 <Link href='/auth'>
                                     <Button label="Login" variant="primary" />
                                 </Link>
-                            </div>)}
-                        {user && problemPage && <Timer />}
+                            </div>
+                        )}
                         {user && (
-                            <div className='cursor-pointer group relative'>
-                                <Image src='/avatar.png' alt='Avatar' width={30} height={30} className='rounded-full' />
+                            <div
+                                className='relative'
+                                onMouseEnter={() => setShowProfileTooltip(true)}
+                                onMouseLeave={() => setShowProfileTooltip(false)}
+                            >
+                                <Image
+                                    src='/avatar.png'
+                                    alt='Avatar'
+                                    width={30}
+                                    height={30}
+                                    className='rounded-full cursor-pointer border-2 border-transparent hover:border-brand-orange transition-all'
+                                />
                                 <div
-                                    className='absolute top-10 left-2/4 -translate-x-2/4  mx-auto bg-dark-layer-1 text-brand-orange p-2 rounded shadow-lg 
-								z-40 group-hover:scale-100 scale-0 
-								transition-all duration-300 ease-in-out'
+                                    className={`absolute top-10 right-0 sm:left-2/4 sm:-translate-x-2/4 bg-dark-layer-1 text-brand-orange p-2 rounded shadow-lg 
+                                    z-40 transition-all duration-200 min-w-max
+                                    ${showProfileTooltip ? 'opacity-100 scale-100' : 'opacity-0 scale-0 pointer-events-none'}`}
                                 >
-                                    <p className='text-sm'>{user.email}</p>
+                                    <p className='text-sm whitespace-nowrap'>{user.email}</p>
                                 </div>
                             </div>
                         )}
@@ -77,13 +98,8 @@ const Topbar: React.FC<TopbarProps> = ({ problemPage }) => {
                     </div>
                 </div>
             </nav>
-            <div
-                className='absolute top-10 left-2/4 -translate-x-2/4  mx-auto bg-dark-layer-1 text-brand-orange p-2 rounded shadow-lg z-40 group-hover:scale-100 scale-0 transition-all duration-300 ease-in-out'
-            >
-                <p className='text-sm'>Hello</p>
-            </div>
-        </>
-
+        </div>
     );
 };
+
 export default Topbar;

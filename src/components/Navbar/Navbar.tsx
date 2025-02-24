@@ -1,34 +1,144 @@
 import { authModalState } from "@/atoms/authModalAtom";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useSetRecoilState } from "recoil";
-import logo from "../public/p2.png";
 import Button from "../UI/Button";
+import { Menu, X } from "lucide-react";
 
 type NavbarProps = {};
 
 const Navbar: React.FC<NavbarProps> = () => {
-	const setAuthModalState = useSetRecoilState(authModalState);
-	const handleClick = () => {
-		setAuthModalState((prev) => ({ ...prev, isOpen: true }));
-	};
+  const setAuthModalState = useSetRecoilState(authModalState);
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-	return (
-		<div className='flex items-center justify-between sm:px-12 px-2 md:px-4'>
-			<Link href='/' className='flex items-center justify-center h-20'>
-				<div className='flex items-center space-x-2'>
-					<div className="bg-white rounded-full">
-						<Image src='/p2.png' alt='CodeQuest' height={50} width={50} />
-					</div>
-					<span className='text-2xl font-bold text-white'>CODEQUEST</span>
-				</div>
-			</Link>
-			<div className='flex items-center'>
-				<Button onClick={handleClick} label="Login" variant="primary" />
-			</div>
-		</div>
-	);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleClick = () => {
+    setAuthModalState((prev) => ({ ...prev, isOpen: true }));
+  };
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  return (
+    <nav 
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+        scrolled ? "bg-black/80 backdrop-blur-md shadow-lg" : "bg-transparent"
+      }`}
+    >
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between sm:px-12 px-4 py-3">
+          <Link href="/" className="flex items-center space-x-3">
+            <div className="bg-white rounded-full p-0.5 shadow-md shadow-blue-500/20">
+              <Image 
+                src="/p2.png" 
+                alt="CodeQuest" 
+                height={45} 
+                width={45} 
+                className="transition-transform duration-300 hover:scale-105"
+              />
+            </div>
+            <span className="text-2xl font-bold text-white tracking-tight">
+              CODE<span className="text-blue-400">QUEST</span>
+            </span>
+          </Link>
+          <div className="hidden md:flex items-center space-x-6">
+            <NavLink href="/problems">Problems</NavLink>
+            <NavLink href="/contests">Contests</NavLink>
+            <NavLink href="/leaderboard">Leaderboard</NavLink>
+            <Button 
+              onClick={handleClick} 
+              label="Login" 
+              variant="primary" 
+            />
+          </div>
+          <div className="md:hidden">
+            <button 
+              onClick={toggleMobileMenu}
+              className="text-gray-200 hover:text-white focus:outline-none"
+            >
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
+        </div>
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-gray-900 border-t border-gray-800">
+            <div className="px-4 py-3 space-y-4">
+              <MobileNavLink href="/problems" onClick={() => setMobileMenuOpen(false)}>
+                Problems
+              </MobileNavLink>
+              <MobileNavLink href="/contests" onClick={() => setMobileMenuOpen(false)}>
+                Contests
+              </MobileNavLink>
+              <MobileNavLink href="/leaderboard" onClick={() => setMobileMenuOpen(false)}>
+                Leaderboard
+              </MobileNavLink>
+              <div className="pt-2">
+                <Button 
+                  onClick={() => {
+                    handleClick();
+                    setMobileMenuOpen(false);
+                  }} 
+                  label="Login" 
+                  variant="primary"
+                  fullWidth={true}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </nav>
+  );
+};
+
+const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
+  return (
+    <Link 
+      href={href}
+      className="text-gray-300 hover:text-white transition-colors font-medium"
+    >
+      {children}
+    </Link>
+  );
+};
+
+const MobileNavLink = ({ 
+  href, 
+  children,
+  onClick
+}: { 
+  href: string; 
+  children: React.ReactNode;
+  onClick?: () => void;
+}) => {
+  return (
+    <Link 
+      href={href} 
+      className="block text-gray-300 hover:text-white transition-colors py-2 border-b border-gray-800"
+      onClick={onClick}
+    >
+      {children}
+    </Link>
+  );
 };
 
 export default Navbar;
