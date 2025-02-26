@@ -19,7 +19,7 @@ export default function Home() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl mb-3">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">
-              QUALITY OVER QUANTITY
+              ONE STEP SOLUTION FOR YOUR CODING EXAMS
             </span>
           </h1>
           <p className="max-w-2xl mx-auto text-xl text-gray-500 dark:text-gray-300">

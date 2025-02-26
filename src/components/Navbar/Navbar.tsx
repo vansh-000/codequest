@@ -35,39 +35,36 @@ const Navbar: React.FC<NavbarProps> = () => {
   };
 
   return (
-    <nav 
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        scrolled ? "bg-black/80 backdrop-blur-md shadow-lg" : "bg-transparent"
-      }`}
+    <nav
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-black/80 backdrop-blur-md shadow-lg" : "bg-transparent"
+        }`}
     >
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between sm:px-12 px-4 py-3">
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="bg-white rounded-full p-0.5 shadow-md shadow-blue-500/20">
-              <Image 
-                src="/p2.png" 
-                alt="CodeQuest" 
-                height={45} 
-                width={45} 
-                className="transition-transform duration-300 hover:scale-105"
-              />
-            </div>
+          <Link href="" className="flex items-center space-x-3">
+            <Image
+              src="/logo.png"
+              alt="CodeQuest"
+              height={45}
+              width={45}
+              className="transition-transform duration-300 hover:scale-105"
+            />
             <span className="text-2xl font-bold text-white tracking-tight">
               CODE<span className="text-blue-400">QUEST</span>
             </span>
           </Link>
           <div className="hidden md:flex items-center space-x-6">
-            <NavLink href="/problems">Problems</NavLink>
-            <NavLink href="/contests">Contests</NavLink>
-            <NavLink href="/leaderboard">Leaderboard</NavLink>
-            <Button 
-              onClick={handleClick} 
-              label="Login" 
-              variant="primary" 
+            <NavLink href="">Problems</NavLink>
+            <NavLink href="">Contests</NavLink>
+            <NavLink href="">Leaderboard</NavLink>
+            <Button
+              onClick={handleClick}
+              label="Login"
+              variant="primary"
             />
           </div>
           <div className="md:hidden">
-            <button 
+            <button
               onClick={toggleMobileMenu}
               className="text-gray-200 hover:text-white focus:outline-none"
             >
@@ -92,12 +89,12 @@ const Navbar: React.FC<NavbarProps> = () => {
                 Leaderboard
               </MobileNavLink>
               <div className="pt-2">
-                <Button 
+                <Button
                   onClick={() => {
                     handleClick();
                     setMobileMenuOpen(false);
-                  }} 
-                  label="Login" 
+                  }}
+                  label="Login"
                   variant="primary"
                   fullWidth={true}
                 />
@@ -112,7 +109,7 @@ const Navbar: React.FC<NavbarProps> = () => {
 
 const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
   return (
-    <Link 
+    <Link
       href={href}
       className="text-gray-300 hover:text-white transition-colors font-medium"
     >
@@ -121,18 +118,18 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
   );
 };
 
-const MobileNavLink = ({ 
-  href, 
+const MobileNavLink = ({
+  href,
   children,
   onClick
-}: { 
-  href: string; 
+}: {
+  href: string;
   children: React.ReactNode;
   onClick?: () => void;
 }) => {
   return (
-    <Link 
-      href={href} 
+    <Link
+      href={href}
       className="block text-gray-300 hover:text-white transition-colors py-2 border-b border-gray-800"
       onClick={onClick}
     >

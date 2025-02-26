@@ -17,24 +17,22 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = () => {
 				<div className='px-5'>
 					<div className='w-full'>
 						<div className='flex space-x-4'>
-							<div className='flex-1 mr-2 text-lg text-white font-medium'>1. Two Sum</div>
+							<div className='flex-1 mr-2 text-lg text-white font-medium'>1.Activity Selection Problem</div>
 						</div>
 						<div className='flex items-center mt-3'>
-							<div
-								className={`text-olive bg-olive inline-block rounded-[21px] bg-opacity-[.15] px-2.5 py-1 text-xs font-medium capitalize `}
-							>
-								Easy
+							<div className={`text-olive bg-olive inline-block rounded-[21px] bg-opacity-[.15] px-2.5 py-1 text-xs font-medium capitalize `}>
+								Medium
 							</div>
 							<div className='rounded p-[3px] ml-4 text-lg transition-colors duration-200 text-green-s text-dark-green-s'>
 								<BsCheck2Circle />
 							</div>
 							<div className='flex items-center cursor-pointer hover:bg-dark-fill-3 space-x-1 rounded p-[3px]  ml-4 text-lg transition-colors duration-200 text-dark-gray-6'>
 								<AiFillLike />
-								<span className='text-xs'>120</span>
+								<span className='text-xs'>85</span>
 							</div>
 							<div className='flex items-center cursor-pointer hover:bg-dark-fill-3 space-x-1 rounded p-[3px]  ml-4 text-lg transition-colors duration-200 text-green-s text-dark-gray-6'>
 								<AiFillDislike />
-								<span className='text-xs'>2</span>
+								<span className='text-xs'>5</span>
 							</div>
 							<div className='cursor-pointer hover:bg-dark-fill-3  rounded p-[3px]  ml-4 text-xl transition-colors duration-200 text-green-s text-dark-gray-6 '>
 								<TiStarOutline />
@@ -42,24 +40,20 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = () => {
 						</div>
 						<div className='text-white text-sm'>
 							<p className='mt-3'>
-								Given an array of integers <code>nums</code> and an integer <code>target</code>, return
-								<em>indices of the two numbers such that they add up to</em> <code>target</code>.
+								Given <code>n</code> activities with their start and end times, select the maximum number of activities that can be performed by a single person, assuming that a person can only work on a single activity at a time.
 							</p>
 							<p className='mt-3'>
-								You may assume that each input would have <strong>exactly one solution</strong>, and you
-								may not use thesame element twice.
+								Return the indices of the selected activities in order.
 							</p>
-							<p className='mt-3'>You can return the answer in any order.</p>
 						</div>
 						<div className='mt-4'>
 							<div>
 								<p className='font-medium text-white '>Example 1: </p>
 								<div className='example-card'>
 									<pre>
-										<strong className='text-white'>Input: </strong> nums = [2,7,11,15], target = 9{" "}
-										<br />
-										<strong>Output:</strong> [0,1] <br />
-										<strong>Explanation:</strong>Because nums[0] + nums[1] == 9, we return [0, 1].
+										<strong className='text-white'>Input: </strong> start = [1,3,0,5,8,5], end = [2,4,6,7,9,9] <br />
+										<strong>Output:</strong> [0,1,3,4] <br />
+										<strong>Explanation:</strong> Selecting activities (0,1,3,4) allows for maximum activities without overlap.
 									</pre>
 								</div>
 							</div>
@@ -67,20 +61,9 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = () => {
 								<p className='font-medium text-white '>Example 2: </p>
 								<div className='example-card'>
 									<pre>
-										<strong className='text-white'>Input: </strong> nums = [3,2,4], target = 6{" "}
-										<br />
-										<strong>Output:</strong> [1,2] <br />
-										<strong>Explanation:</strong>Because nums[1] + nums[2] == 6, we return [1, 2].
-									</pre>
-								</div>
-							</div>
-							<div>
-								<p className='font-medium text-white '>Example 3: </p>
-								<div className='example-card'>
-									<pre>
-										<strong className='text-white'>Input: </strong> nums = [3,3], target = 6
-										<br />
-										<strong>Output:</strong> [0,1] <br />
+										<strong className='text-white'>Input: </strong> start = [10,12,20], end = [20,25,30] <br />
+										<strong>Output:</strong> [0,1,2] <br />
+										<strong>Explanation:</strong> All activities can be selected without conflicts.
 									</pre>
 								</div>
 							</div>
@@ -91,17 +74,14 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = () => {
 							<div className='text-white text-sm font-medium'>Constraints:</div>
 							<ul className='text-white ml-5 list-disc'>
 								<li className='mt-2'>
-									<code>2 ≤ nums.length ≤ 10</code>
+									<code>1 ≤ n ≤ 10</code>
 								</li>
 
 								<li className='mt-2'>
-									<code>-10 ≤ nums[i] ≤ 10</code>
+									<code>1 ≤ start[i], end[i] ≤ 100</code>
 								</li>
 								<li className='mt-2'>
-									<code>-10 ≤ target ≤ 10</code>
-								</li>
-								<li className='mt-2 text-sm'>
-									<strong>Only one valid answer exists.</strong>
+									<strong>Start time of an activity is always less than its end time.</strong>
 								</li>
 							</ul>
 						</div>

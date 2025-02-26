@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Code, Trophy, Users, ChevronRight, Star, Terminal } from "lucide-react";
 import Button from "@/components/UI/Button";
 import Navbar from "@/components/Navbar/Navbar";
+import Footer from "@/components/Footer/footer";
 import AuthModal from "@/components/Modals/AuthModal";
 import { useRecoilValue } from "recoil";
 import { authModalState } from "@/atoms/authModalAtom";
@@ -26,33 +27,28 @@ const HomePage: React.FC = () => {
     <div className="bg-gradient-to-b from-black via-gray-900 to-gray-800 min-h-screen text-gray-200">
       <Navbar />
 
-      {/* Hero Section */}
       <div className="relative overflow-hidden">
-        {/* Background Grid Pattern */}
         <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-center opacity-10"></div>
-        
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-center text-center space-y-8 py-20 md:py-28 lg:py-32">
             <div className="inline-block px-4 py-1 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-blue-500/30 text-blue-300 text-sm font-medium mb-2">
-              Welcome to ProblemSolver
+              Welcome to CodeQuest
             </div>
-            
+
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500">
                 Master Coding Challenges
               </span>
             </h1>
-            
+
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 max-w-3xl leading-relaxed">
               Practice, compete, and improve your coding skills with our wide range of problems and contests.
             </p>
-            
+
             <div className="mt-6 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 w-full sm:w-auto">
               <Button label="Get Started" variant="primary" fullWidth={false} />
               <Button label="Learn More" variant="secondary" fullWidth={false} />
             </div>
-            
-            {/* Stats Section */}
             <div className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-3 sm:gap-8 max-w-3xl w-full">
               <StatCard value="1,200+" label="Problems" />
               <StatCard value="500K+" label="Submissions" />
@@ -63,18 +59,16 @@ const HomePage: React.FC = () => {
       </div>
 
       {authModal.isOpen && <AuthModal />}
-
-      {/* Features Section */}
       <section className="py-16 sm:py-20 bg-gradient-to-b from-gray-900 to-black relative">
         <div className="absolute inset-0 bg-[url('/dots-pattern.svg')] bg-center opacity-5"></div>
         <div className="relative max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Why Choose <span className="text-blue-400">ProblemSolver</span>
+              Why Choose <span className="text-blue-400">CodeQuest</span>
             </h2>
             <div className="h-1 w-20 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto"></div>
           </div>
-          
+
           <div className="grid gap-8 sm:gap-10 md:grid-cols-2 lg:grid-cols-3 px-4 sm:px-6 lg:px-8">
             <FeatureCard
               icon={<Code className="w-14 h-14 sm:w-16 sm:h-16 text-blue-400" />}
@@ -94,33 +88,25 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
-
-      {/* Language Section */}
       <section className="py-16 sm:py-20 bg-black relative">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-10">
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Supported Languages</h2>
             <p className="text-gray-400 max-w-2xl mx-auto">Solve problems in your favorite programming language</p>
           </div>
-          
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
+          <div className="text-center mb-10">
+            <button className="inline-flex items-center text-blue-400 hover:text-blue-300 transition">
+              See all supported languages
+            </button>
+          </div>
+          <div className="grid mt-2 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 sm:gap-6">
             <LanguageCard name="Python" />
             <LanguageCard name="JavaScript" />
             <LanguageCard name="Java" />
             <LanguageCard name="C++" />
-            <LanguageCard name="Go" />
-            <LanguageCard name="Ruby" />
-          </div>
-          
-          <div className="text-center mt-12">
-            <button className="inline-flex items-center text-blue-400 hover:text-blue-300 transition">
-              See all supported languages <ChevronRight className="w-4 h-4 ml-1" />
-            </button>
           </div>
         </div>
       </section>
-
-      {/* CTA Section */}
       <section className="py-16 sm:py-20 bg-gradient-to-r from-blue-900/30 to-purple-900/30">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">Ready to start coding?</h2>
@@ -128,22 +114,7 @@ const HomePage: React.FC = () => {
           <Button label="Sign up for free" variant="primary" fullWidth={false} />
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-black py-12">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center border-t border-gray-800 pt-8">
-            <div className="text-gray-400 text-sm mb-4 md:mb-0">
-              © 2025 ProblemSolver. All rights reserved.
-            </div>
-            <div className="flex space-x-6">
-              <a href="#" className="text-gray-400 hover:text-gray-300">Terms</a>
-              <a href="#" className="text-gray-400 hover:text-gray-300">Privacy</a>
-              <a href="#" className="text-gray-400 hover:text-gray-300">Contact</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

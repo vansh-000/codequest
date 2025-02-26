@@ -27,15 +27,13 @@ const Topbar: React.FC<TopbarProps> = ({ problemPage }) => {
             <nav className={`flex h-[50px] w-full shrink-0 items-center px-2 sm:px-4 ${problemPage ? 'bg-dark-layer-1 text-dark-gray-7' : 'shadow-md'}`}>
                 <div className={`flex w-full items-center justify-between max-w-7xl mx-auto`}>
                     <Link href='/' className='flex items-center space-x-2'>
-                        <div className="bg-white rounded-full p-0.5">
                             <Image
-                                src='/p2.png'
+                                src='/logo.png'
                                 alt='CodeQuest'
                                 height={32}
                                 width={32}
                                 className="transition-transform duration-200 hover:scale-105"
                             />
-                        </div>
                         <span className='text-xl font-bold text-white hidden sm:inline'>CodeQuest</span>
                     </Link>
                     {problemPage && (
