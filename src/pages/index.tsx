@@ -1,15 +1,29 @@
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
+import { authModalState } from "@/atoms/authModalAtom";
 import ProblemsTable from "@/components/problemsTable/problemsTable";
 import Topbar from "@/components/Topbar/topbar";
 import useHasMounted from "@/hooks/useHasMounted";
 import { AlertTriangle, BookOpen, Check } from "lucide-react";
 import { useState } from "react";
-import { useRouter } from "next/router";
 
 export default function Home() {
   const [loadingProblems, setLoadingProblems] = useState(true);
   const hasMounted = useHasMounted();
   const router = useRouter();
-  if (!hasMounted) return null;
+  const authState = useRecoilValue(authModalState);
+  const setAuthState = useSetRecoilState(authModalState);
+
+  // Redirect to login if no user is authenticated
+  useEffect(() => {
+    if (!authState.user) {
+      setAuthState((prev) => ({ ...prev, isOpen: true, type: "login" }));
+      router.push("/auth");
+    }
+  }, [authState.user, router, setAuthState]);
+
+  if (!hasMounted || !authState.user) return null;
 
   return (
     <>
