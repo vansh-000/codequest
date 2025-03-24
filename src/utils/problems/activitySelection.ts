@@ -35,7 +35,7 @@ const handlerActivitySelection = (fn: any) => {
 
 export const activitySelection: Problem = {
   id: "activity-selection",
-  title: "Activity Selection Problem",
+  title: "1. Activity Selection Problem",
   problemStatement: `<p class='mt-3'>
   Given <code>n</code> activities with their start and end times, select the maximum number of activities that can be performed by a single person, assuming that a person can only work on a single activity at a time.
 </p>
