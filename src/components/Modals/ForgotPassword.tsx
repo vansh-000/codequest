@@ -1,12 +1,8 @@
 import { useState } from "react";
-import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 
-const ResetPassword = () => {
-  const router = useRouter();
-  const { token } = router.query;
-
-  const [newPassword, setNewPassword] = useState("");
+const ForgotPassword = () => {
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -14,10 +10,10 @@ const ResetPassword = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/users/reset-password/${token}`, {
+      const response = await fetch("http://localhost:5000/api/v1/users/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ newPassword }),
+        body: JSON.stringify({ email }),
       });
 
       const data = await response.json();
@@ -26,8 +22,8 @@ const ResetPassword = () => {
         throw new Error(data.message || "Something went wrong");
       }
 
-      toast.success("Password reset successful!");
-      router.push("/auth");
+      toast.success("Reset password email sent!");
+      setEmail("");
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -37,13 +33,13 @@ const ResetPassword = () => {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-6">
-      <h3 className="text-2xl font-bold text-white">Reset Password</h3>
+      <h3 className="text-2xl font-bold text-white">Forgot Password</h3>
       <input
-        type="password"
-        value={newPassword}
-        onChange={(e) => setNewPassword(e.target.value)}
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
         className="border-2 rounded-lg p-3 bg-gray-600 text-white w-full"
-        placeholder="Enter new password"
+        placeholder="Enter your email"
         required
       />
       <button
@@ -51,10 +47,10 @@ const ResetPassword = () => {
         className="w-full bg-blue-500 text-white py-2 rounded-lg"
         disabled={loading}
       >
-        {loading ? "Resetting..." : "Reset Password"}
+        {loading ? "Sending..." : "Reset Password"}
       </button>
     </form>
   );
 };
 
-export default ResetPassword;
+export default ForgotPassword;

@@ -1,22 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Button from "../UI/Button";
 import { useSetRecoilState } from "recoil";
 import { authModalState } from "@/atoms/authModalAtom";
-import { auth, firestore } from "@/firebase/firebase";
-import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { toast } from "react-toastify";
-import { doc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 
-type SignupProps = {};
-
-const Signup: React.FC<SignupProps> = () => {
+const Signup: React.FC = () => {
   const setAuthModalState = useSetRecoilState(authModalState);
-
-  const [inputs, setInputs] = useState({ email: "", userName: "", password: "" });
   const router = useRouter();
 
-  const [createUserWithEmailAndPassword, user, loading, error] = useCreateUserWithEmailAndPassword(auth);
+  const [inputs, setInputs] = useState({
+    email: "",
+    username: "",
+    password: "",
+    role: "user",
+  });
+  const [loading, setLoading] = useState(false);
 
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -28,41 +27,66 @@ const Signup: React.FC<SignupProps> = () => {
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!inputs.email || !inputs.password || !inputs.userName) return alert("Please fill all fields");
+    if (!inputs.email || !inputs.password || !inputs.username)
+      return toast.error("Please fill all fields");
+
+    setLoading(true);
+    toast.loading("Creating your account", {
+      position: "top-center",
+      toastId: "loadingToast",
+    });
+
     try {
-      toast.loading("Creating your account", { position: "top-center", toastId: "loadingToast" });
-      const newUser = await createUserWithEmailAndPassword(inputs.email, inputs.password);
-      if (!newUser) return;
-      const userData = {
-        uid: newUser.user.uid,
-        email: newUser.user.email,
-        displayName: inputs.userName,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        likedProblems: [],
-        dislikedProblems: [],
-        solvedProblems: [],
-        starredProblems: [],
-      };
-      await setDoc(doc(firestore, "users", newUser.user.uid), userData);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(inputs),
+        }
+      );
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data?.message || "Registration failed");
+
+      // Update auth state & close modal
+      setAuthModalState((prev) => ({
+        ...prev,
+        isOpen: false, // Close modal after successful signup
+        user: {
+          userId: data.userId,
+          username: data.username,
+          email: data.email,
+        },
+      }));
+
+      // Store tokens securely
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("refreshToken", data.refreshToken);
+
+      // Reset form
+      setInputs({
+        email: "",
+        username: "",
+        password: "",
+        role: "user",
+      });
+
+      toast.success("Account created successfully!", {
+        position: "top-center",
+        autoClose: 3000,
+      });
       router.push("/");
     } catch (error: any) {
-      toast.error(error.message, { position: "top-center" });
+      const errorMessage = error?.message || "An error occurred";
+      toast.error(errorMessage, { position: "top-center" });
     } finally {
+      setLoading(false);
       toast.dismiss("loadingToast");
     }
   };
-  useEffect(() => {
-    if (error) {
-      if (error.message == "Firebase: Error (auth/email-already-in-use).") {
-        toast.error('User Already exists. Please Login')
-      }
-      else {
-        toast.error(error.message);
-      }
-    };
-  }, [error]);
-
 
   return (
     <form onSubmit={handleRegister} className="space-y-6 pb-2 max-w-md mx-auto">
@@ -88,14 +112,14 @@ const Signup: React.FC<SignupProps> = () => {
       </div>
 
       <div>
-        <label htmlFor="userName" className="text-sm md:text-base font-medium block mb-2 text-gray-300">
+        <label htmlFor="username" className="text-sm md:text-base font-medium block mb-2 text-gray-300">
           Username
         </label>
         <input
           type="text"
           onChange={handleChangeInput}
-          name="userName"
-          id="userName"
+          name="username"
+          id="username"
           className="border-2 outline-none sm:text-sm md:text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
           placeholder="Your name"
           required
@@ -118,12 +142,22 @@ const Signup: React.FC<SignupProps> = () => {
       </div>
 
       <div className="flex items-center justify-center">
-        <Button fullWidth label="Register" variant="primary" />
+        <Button
+          fullWidth
+          label={loading ? "Registering..." : "Register"}
+          variant="primary"
+        />
       </div>
 
       <div className="text-sm md:text-base font-medium text-gray-300 text-center">
         Already have an account?{" "}
-        <a onClick={() => handleClick("login")} className="text-blue-500 hover:underline cursor-pointer">
+        <a
+          onClick={(e) => {
+            e.preventDefault();
+            handleClick("login");
+          }}
+          className="text-blue-500 hover:underline cursor-pointer"
+        >
           Log In
         </a>
       </div>

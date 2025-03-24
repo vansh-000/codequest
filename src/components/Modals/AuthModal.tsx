@@ -5,6 +5,7 @@ import Signup from "./Signup";
 import ResetPassword from "./ResetPassword";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { authModalState } from "@/atoms/authModalAtom";
+import ForgotPassword from "./ForgotPassword";
 
 type AuthModalProps = {};
 
@@ -44,7 +45,7 @@ const AuthModal: React.FC<AuthModalProps> = () => {
 						</button>
 					</div>
 					<div className="px-2 pb-2 sm:px-4 sm:pb-4">
-						{authModel.type === 'login' ? <Login /> : authModel.type === "register" ? <Signup /> : <ResetPassword />}
+						{authModel.type === 'login' ? <Login /> : (authModel.type === "register" ? <Signup /> : (authModel.type === "resetPassword"? <ResetPassword/>:<ForgotPassword />))}
 					</div>
 
 				</div>
