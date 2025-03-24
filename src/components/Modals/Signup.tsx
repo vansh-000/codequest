@@ -49,7 +49,9 @@ const Signup: React.FC = () => {
       );
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data?.message || "Registration failed");
+      if (!response.ok)
+        // throw new Error(data?.message || "Registration failed");
+        throw data;
 
       // Update auth state & close modal
       setAuthModalState((prev) => ({
@@ -80,8 +82,13 @@ const Signup: React.FC = () => {
       });
       router.push("/");
     } catch (error: any) {
-      const errorMessage = error?.message || "An error occurred";
+      const errorMessage = error?.message || "An unexpected error occurred";
       toast.error(errorMessage, { position: "top-center" });
+      if (error?.errors && Array.isArray(error.errors)) {
+        error.errors.forEach((err: string) => {
+          toast.error(err, { position: "top-center" });
+        });
+      }
     } finally {
       setLoading(false);
       toast.dismiss("loadingToast");
@@ -97,7 +104,10 @@ const Signup: React.FC = () => {
       </div>
 
       <div>
-        <label htmlFor="email" className="text-sm md:text-base font-medium block mb-2 text-gray-300">
+        <label
+          htmlFor="email"
+          className="text-sm md:text-base font-medium block mb-2 text-gray-300"
+        >
           Email
         </label>
         <input
@@ -112,7 +122,10 @@ const Signup: React.FC = () => {
       </div>
 
       <div>
-        <label htmlFor="username" className="text-sm md:text-base font-medium block mb-2 text-gray-300">
+        <label
+          htmlFor="username"
+          className="text-sm md:text-base font-medium block mb-2 text-gray-300"
+        >
           Username
         </label>
         <input
@@ -127,7 +140,10 @@ const Signup: React.FC = () => {
       </div>
 
       <div>
-        <label htmlFor="password" className="text-sm md:text-base font-medium block mb-2 text-gray-300">
+        <label
+          htmlFor="password"
+          className="text-sm md:text-base font-medium block mb-2 text-gray-300"
+        >
           Password
         </label>
         <input
