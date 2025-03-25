@@ -25,8 +25,8 @@ export const problems: Problem[] = [
 	  videoId: "D2vI2DNJGd8",
 	},
 	{
-	  id: "best-time-to-buy-and-sell-stock",
-	  title: "Best Time to Buy and Sell Stock",
+	  id: "stocks-buying",
+	  title: "Stocks Buying",
 	  difficulty: "Easy",
 	  category: "Array",
 	  order: 3,
@@ -34,7 +34,7 @@ export const problems: Problem[] = [
 	},
 	{
 	  id: "celebrity-problem",
-	  title: "The Celebrity Problem",
+	  title: "The Celebrity",
 	  difficulty: "Medium",
 	  category: "Stack",
 	  order: 4,
@@ -49,8 +49,8 @@ export const problems: Problem[] = [
 	  videoId: "cHT6sG_hUZI",
 	},
 	{
-	  id: "container-with-most-water",
-	  title: "Container With Most Water",
+	  id: "water-container",
+	  title: "Water Container",
 	  difficulty: "Medium",
 	  category: "Two Pointers",
 	  order: 6,
@@ -74,7 +74,7 @@ export const problems: Problem[] = [
 	},
 	{
 	  id: "minimum-platforms",
-	  title: "Minimum Number of Platforms Required for a Railway/Bus Station",
+	  title: "Minimum Platforms",
 	  difficulty: "Medium",
 	  category: "Greedy",
 	  order: 9,
@@ -82,15 +82,15 @@ export const problems: Problem[] = [
 	},
 	{
 	  id: "job-sequencing",
-	  title: "Job Sequencing Problem",
+	  title: "Job Sequencing",
 	  difficulty: "Medium",
 	  category: "Greedy",
 	  order: 10,
 	  videoId: "mM7eFj5C2i4",
 	},
 	{
-	  id: "subsets",
-	  title: "Subsets",
+	  id: "subset-sum",
+	  title: "Subset Sum",
 	  difficulty: "Medium",
 	  category: "Backtracking",
 	  order: 11,
