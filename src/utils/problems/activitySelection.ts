@@ -66,7 +66,7 @@ export const activitySelection: Problem = {
 </li>`,
   handlerFunction: handlerActivitySelection,
   starterCode: starterCodeActivitySelection,
-  order: 2,
+  order: 1,
   starterFunctionName: `#include <bits/stdc++.h>
 using namespace std;
 int main() {
