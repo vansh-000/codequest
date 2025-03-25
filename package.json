@@ -26,6 +26,7 @@
 		"react-confetti": "^6.2.2",
 		"react-dom": "^18.3.1",
 		"react-firebase-hooks": "^5.1.1",
+		"react-hook-form": "^7.54.2",
 		"react-icons": "^4.8.0",
 		"react-split": "^2.0.14",
 		"react-toastify": "^9.1.2",
