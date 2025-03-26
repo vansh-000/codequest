@@ -9,7 +9,7 @@ export type Problem = {
 
 export const problems: Problem[] = [
 	{
-	  id: "activity-selection",
+	  id: "67e384b983cbbb6a99297924",
 	  title: "Activity Selection",
 	  difficulty: "Easy",
 	  category: "Greedy",
@@ -17,7 +17,7 @@ export const problems: Problem[] = [
 	  videoId: "mM7eFj5C2i4",
 	},
 	{
-	  id: "reverse-linked-list",
+	  id: "67e384de83cbbb6a99297926",
 	  title: "Reverse Linked List",
 	  difficulty: "Hard",
 	  category: "Linked List",
@@ -25,7 +25,7 @@ export const problems: Problem[] = [
 	  videoId: "D2vI2DNJGd8",
 	},
 	{
-	  id: "stocks-buying",
+	  id: "67e384f783cbbb6a99297928",
 	  title: "Stocks Buying",
 	  difficulty: "Easy",
 	  category: "Array",
@@ -33,7 +33,7 @@ export const problems: Problem[] = [
 	  videoId: "excAOvwF_Wk",
 	},
 	{
-	  id: "celebrity-problem",
+	  id: "67e3850d83cbbb6a9929792a",
 	  title: "The Celebrity",
 	  difficulty: "Medium",
 	  category: "Stack",
@@ -41,7 +41,7 @@ export const problems: Problem[] = [
 	  videoId: "Z5AEc12ieOs",
 	},
 	{
-	  id: "valid-parentheses",
+	  id: "67e3852683cbbb6a9929792c",
 	  title: "Valid Parentheses",
 	  difficulty: "Easy",
 	  category: "Stack",
@@ -49,7 +49,7 @@ export const problems: Problem[] = [
 	  videoId: "cHT6sG_hUZI",
 	},
 	{
-	  id: "water-container",
+	  id: "67e3857a83cbbb6a9929792e",
 	  title: "Water Container",
 	  difficulty: "Medium",
 	  category: "Two Pointers",
@@ -57,7 +57,7 @@ export const problems: Problem[] = [
 	  videoId: "",
 	},
 	{
-	  id: "jump-game",
+	  id: "67e385e783cbbb6a99297930",
 	  title: "Jump Game",
 	  difficulty: "Medium",
 	  category: "Dynamic Programming",
@@ -65,7 +65,7 @@ export const problems: Problem[] = [
 	  videoId: "tZAa_jJ3SwQ",
 	},
 	{
-	  id: "fractional-knapsack",
+	  id: "67e385fd83cbbb6a99297932",
 	  title: "Fractional Knapsack Problem",
 	  difficulty: "Medium",
 	  category: "Greedy",
@@ -73,7 +73,7 @@ export const problems: Problem[] = [
 	  videoId: "mM7eFj5C2i4",
 	},
 	{
-	  id: "minimum-platforms",
+	  id: "67e3860e83cbbb6a99297934",
 	  title: "Minimum Platforms",
 	  difficulty: "Medium",
 	  category: "Greedy",
@@ -81,7 +81,7 @@ export const problems: Problem[] = [
 	  videoId: "mM7eFj5C2i4",
 	},
 	{
-	  id: "job-sequencing",
+	  id: "67e3861e83cbbb6a99297936",
 	  title: "Job Sequencing",
 	  difficulty: "Medium",
 	  category: "Greedy",
@@ -89,7 +89,7 @@ export const problems: Problem[] = [
 	  videoId: "mM7eFj5C2i4",
 	},
 	{
-	  id: "subset-sum",
+	  id: "67e3864f83cbbb6a99297938",
 	  title: "Subset Sum",
 	  difficulty: "Medium",
 	  category: "Backtracking",
@@ -97,7 +97,7 @@ export const problems: Problem[] = [
 	  videoId: "",
 	},
 	{
-	  id: "maximum-depth-of-binary-tree",
+	  id: "67e3866483cbbb6a9929793a",
 	  title: "Maximum Depth of Binary Tree",
 	  difficulty: "Easy",
 	  category: "Tree",
@@ -105,7 +105,7 @@ export const problems: Problem[] = [
 	  videoId: "eD3tmO66aBA",
 	},
 	{
-	  id: "two-sum",
+	  id: "67e3867c83cbbb6a9929793c",
 	  title: "Two Sum",
 	  difficulty: "Easy",
 	  category: "Array",
@@ -113,7 +113,7 @@ export const problems: Problem[] = [
 	  videoId: "UXDSeD9mN-k",
 	},
 	{
-	  id: "search-a-2d-matrix",
+	  id: "67e3869883cbbb6a9929793e",
 	  title: "Search a 2D Matrix",
 	  difficulty: "Medium",
 	  category: "Binary Search",
@@ -121,7 +121,7 @@ export const problems: Problem[] = [
 	  videoId: "JXU4Akft7yk",
 	},
 	{
-	  id: "merge-intervals",
+	  id: "67e386b383cbbb6a99297940",
 	  title: "Merge Intervals",
 	  difficulty: "Medium",
 	  category: "Intervals",

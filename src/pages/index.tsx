@@ -15,13 +15,16 @@ export default function Home() {
   const authState = useRecoilValue(authModalState);
   const setAuthState = useSetRecoilState(authModalState);
 
-  // Redirect to login if no user is authenticated
   useEffect(() => {
-    if (!authState.user) {
+    const storedUser = localStorage.getItem("user");
+
+    if (storedUser) {
+      setAuthState((prev) => ({ ...prev, user: JSON.parse(storedUser) }));
+    } else {
       setAuthState((prev) => ({ ...prev, isOpen: true, type: "login" }));
       router.push("/auth");
     }
-  }, [authState.user, router, setAuthState]);
+  }, [router, setAuthState]);
 
   if (!hasMounted || !authState.user) return null;
 

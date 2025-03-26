@@ -41,6 +41,7 @@ const AdminPage: React.FC = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
           body: JSON.stringify(data),
         }
@@ -71,33 +72,84 @@ const AdminPage: React.FC = () => {
           </p>
         )}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <input {...register("title", { required: "Title is required" })} placeholder="Title" className="w-full p-3 border border-gray-700 bg-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500" />
-          {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+          <input
+            {...register("title", { required: "Title is required" })}
+            placeholder="Title"
+            className="w-full p-3 border border-gray-700 bg-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
+          {errors.title && (
+            <p className="text-red-500 text-sm">{errors.title.message}</p>
+          )}
 
-          <input {...register("category", { required: "Category is required" })} placeholder="Category" className="w-full p-3 border border-gray-700 bg-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500" />
-          {errors.category && <p className="text-red-500 text-sm">{errors.category.message}</p>}
+          <input
+            {...register("category", { required: "Category is required" })}
+            placeholder="Category"
+            className="w-full p-3 border border-gray-700 bg-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
+          {errors.category && (
+            <p className="text-red-500 text-sm">{errors.category.message}</p>
+          )}
 
-          <select {...register("difficulty", { required: "Select difficulty" })} className="w-full p-3 border border-gray-700 bg-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500">
+          <select
+            {...register("difficulty", { required: "Select difficulty" })}
+            className="w-full p-3 border border-gray-700 bg-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
             <option value="">Select Difficulty</option>
             <option value="Easy">Easy</option>
             <option value="Medium">Medium</option>
             <option value="Hard">Hard</option>
           </select>
-          {errors.difficulty && <p className="text-red-500 text-sm">{errors.difficulty.message}</p>}
+          {errors.difficulty && (
+            <p className="text-red-500 text-sm">{errors.difficulty.message}</p>
+          )}
 
-          <input type="number" {...register("likes", { min: 0, valueAsNumber: true })} placeholder="Likes (default 0)" className="w-full p-3 border border-gray-700 bg-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500" />
+          <input
+            type="number"
+            {...register("likes", { min: 0, valueAsNumber: true })}
+            placeholder="Likes (default 0)"
+            className="w-full p-3 border border-gray-700 bg-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
 
-          <input type="number" {...register("dislikes", { min: 0, valueAsNumber: true })} placeholder="Dislikes (default 0)" className="w-full p-3 border border-gray-700 bg-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500" />
+          <input
+            type="number"
+            {...register("dislikes", { min: 0, valueAsNumber: true })}
+            placeholder="Dislikes (default 0)"
+            className="w-full p-3 border border-gray-700 bg-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
 
-          <input {...register("videoId", { required: "Video ID is required" })} placeholder="Video ID" className="w-full p-3 border border-gray-700 bg-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500" />
-          {errors.videoId && <p className="text-red-500 text-sm">{errors.videoId.message}</p>}
+          <input
+            {...register("videoId", { required: "Video ID is required" })}
+            placeholder="Video ID"
+            className="w-full p-3 border border-gray-700 bg-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
+          {errors.videoId && (
+            <p className="text-red-500 text-sm">{errors.videoId.message}</p>
+          )}
 
-          <button type="submit" disabled={loading} className="w-full py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all duration-300 flex items-center justify-center">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all duration-300 flex items-center justify-center"
+          >
             {loading ? (
               <>
-                <svg className="animate-spin h-5 w-5 text-white mr-2" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0116 0H4z"></path>
+                <svg
+                  className="animate-spin h-5 w-5 text-white mr-2"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 0116 0H4z"
+                  ></path>
                 </svg>
                 Submitting...
               </>

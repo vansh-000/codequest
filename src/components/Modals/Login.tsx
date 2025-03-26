@@ -14,7 +14,9 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   // Function to handle modal state changes (login/register/forgotPassword)
-  const handleClick = (type: "login" | "register" | "forgotPassword" | "resetPassword") => {
+  const handleClick = (
+    type: "login" | "register" | "forgotPassword" | "resetPassword"
+  ) => {
     setAuthModalState((prev) => ({ ...prev, type }));
   };
 
@@ -39,23 +41,42 @@ const Login: React.FC = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(inputs),
-          credentials: "include", // Ensure secure cookie handling
+          credentials: "include", // Important for auth handling
         }
       );
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Login failed");
 
+      // Save user data to localStorage
+      localStorage.setItem("accessToken", data.data.accessToken);
+      localStorage.setItem("refreshToken", data.data.refreshToken);
+
+      localStorage.setItem("user", JSON.stringify(data.data.user));
+
+      // Update Recoil state
       setAuthModalState((prev) => ({
         ...prev,
-        user: { userId: data.userId, username: data.username, email: data.email },
+        user: {
+          userId: data.data.user.userId,
+          username: data.data.user.username,
+          email: data.data.user.email,
+        },
       }));
 
-      toast.success("Login successful!", { position: "top-center", autoClose: 3000, theme: "dark" });
+      toast.success("Login successful!", {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "dark",
+      });
 
       router.push("/");
     } catch (error: any) {
-      toast.error(error.message || "An error occurred", { position: "top-center", autoClose: 3000, theme: "dark" });
+      toast.error(error.message || "An error occurred", {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "dark",
+      });
     } finally {
       setLoading(false);
     }
@@ -70,7 +91,10 @@ const Login: React.FC = () => {
       </div>
 
       <div>
-        <label htmlFor="email" className="text-sm md:text-base font-medium block mb-2 text-gray-300">
+        <label
+          htmlFor="email"
+          className="text-sm md:text-base font-medium block mb-2 text-gray-300"
+        >
           Email
         </label>
         <input
@@ -86,7 +110,10 @@ const Login: React.FC = () => {
       </div>
 
       <div>
-        <label htmlFor="password" className="text-sm md:text-base font-medium block mb-2 text-gray-300">
+        <label
+          htmlFor="password"
+          className="text-sm md:text-base font-medium block mb-2 text-gray-300"
+        >
           Password
         </label>
         <input
@@ -102,7 +129,11 @@ const Login: React.FC = () => {
       </div>
 
       <div className="flex pt-2 items-center justify-center">
-        <Button fullWidth label={loading ? "Logging in..." : "Login"} variant="primary" />
+        <Button
+          fullWidth
+          label={loading ? "Logging in..." : "Login"}
+          variant="primary"
+        />
       </div>
 
       <a
@@ -114,7 +145,10 @@ const Login: React.FC = () => {
 
       <div className="text-sm md:text-base font-medium text-gray-300 text-center">
         Not Registered?{" "}
-        <a onClick={() => handleClick("register")} className="text-blue-500 cursor-pointer hover:underline">
+        <a
+          onClick={() => handleClick("register")}
+          className="text-blue-500 cursor-pointer hover:underline"
+        >
           Create account
         </a>
       </div>

@@ -67,6 +67,7 @@ const Signup: React.FC = () => {
       // Store tokens securely
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
 
       // Reset form
       setInputs({
