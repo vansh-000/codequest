@@ -28,7 +28,7 @@ export default ProblemPage;
 // getStaticPaths => it create the dynamic routes
 export async function getStaticPaths() {
   const paths = Object.keys(problems).map((key) => ({
-    params: { pid: key },
+    params: { _id: key },
   }));
 
   return {
@@ -39,9 +39,9 @@ export async function getStaticPaths() {
 
 // getStaticProps => it fetch the data
 
-export async function getStaticProps({ params }: { params: { pid: string } }) {
-  const { pid } = params;
-  const problem = problems[pid];
+export async function getStaticProps({ params }: { params: { _id: string } }) {
+  const { _id } = params;
+  const problem = problems[_id];
 
   if (!problem) {
     return {

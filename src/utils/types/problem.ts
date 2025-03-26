@@ -19,7 +19,7 @@ export type Problem = {
 };
 
 export type DBProblem = {
-	id: string;
+	_id: string;
 	title: string;
 	category: string;
 	difficulty: string;

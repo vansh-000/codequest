@@ -95,6 +95,13 @@ export default function Home() {
             </div>
 
             <div className="overflow-x-auto">
+              {loadingProblems && (
+                <div className="max-w-[1200px] mx-auto sm:w-7/12 w-full animate-pulse">
+                  {[...Array(5)].map((_, idx) => (
+                    <LoadingSkeleton key={idx} />
+                  ))}
+                </div>
+              )}
               <table className="w-full text-sm text-left">
                 <thead className="text-xs text-gray-700 uppercase dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50">
                   <tr>
