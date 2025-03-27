@@ -3,9 +3,9 @@ import { Problem } from "../types/problem";
 
 const starterCodeCelebrity = `#include <bits/stdc++.h>
 using namespace std;
-int main() {
+int findCelebrity(vector<vector<int>>& M) {
   // Your code here
-  return 0;
+  return -1;
 }`;
 
 const handlerCelebrity = (fn: any) => {
@@ -84,5 +84,5 @@ export const celebrity: Problem = {
   handlerFunction: handlerCelebrity,
   starterCode: starterCodeCelebrity,
   order: 4,
-  starterFunctionName: "function findCelebrity(",
+  starterFunctionName: "findCelebrity",
 };

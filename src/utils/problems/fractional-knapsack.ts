@@ -1,11 +1,8 @@
 import assert from "assert";
 import { Problem } from "../types/problem";
 
-const starterCodeKnapsack = `#include <bits/stdc++.h>
-using namespace std;
-int main() {
+const starterCodeKnapsack = `function fractionalKnapsack(items, capacity) {
   // Your code here
-  return 0;
 }`;
 
 const handlerKnapsack = (fn: any) => {
@@ -35,7 +32,7 @@ const handlerKnapsack = (fn: any) => {
     }
     return true;
   } catch (error: any) {
-    console.log("knapsack handler function error");
+    console.log("Knapsack handler function error");
     throw new Error(error);
   }
 };
@@ -44,8 +41,8 @@ export const knapsack: Problem = {
   id: "fractional-knapsack",
   title: "8. Fractional Knapsack",
   problemStatement: `<p class='mt-3'>
-  Given weights and values of <code>n</code> items, and a knapsack with a maximum capacity <code>W</code>, 
-  determine the maximum total value in the knapsack if fractional quantities of items can be taken.
+  Given an array of items, where each item has a <code>value</code> and <code>weight</code>, and a knapsack with a maximum capacity, 
+  determine the maximum total value that can be obtained if fractional quantities of items can be taken.
 </p>
 <p class='mt-3'>
   You can break items into smaller parts and include partial amounts in the knapsack.
@@ -80,7 +77,7 @@ export const knapsack: Problem = {
   <code>1 ≤ n ≤ 1000</code>
 </li> 
 <li class='mt-2'>
-  <code>1 ≤ W ≤ 10<sup>4</sup></code>
+  <code>1 ≤ capacity ≤ 10<sup>4</sup></code>
 </li> 
 <li class='mt-2'>
   <code>1 ≤ value[i], weight[i] ≤ 10<sup>4</sup></code>

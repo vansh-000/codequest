@@ -1,11 +1,8 @@
 import assert from "assert";
 import { Problem } from "../types/problem";
 
-const starterCodeJobSequencing = `#include <bits/stdc++.h>
-using namespace std;
-int main() {
+const starterCodeJobSequencing = `function jobSequencing(jobs) {
   // Your code here
-  return 0;
 }`;
 
 const handlerJobSequencing = (fn: any) => {
@@ -37,7 +34,7 @@ const handlerJobSequencing = (fn: any) => {
     }
     return true;
   } catch (error: any) {
-    console.log("job sequencing handler function error");
+    console.log("Job Sequencing handler function error");
     throw new Error(error);
   }
 };
@@ -46,15 +43,14 @@ export const jobSequencing: Problem = {
   id: "job-sequencing",
   title: "10. Job Sequencing",
   problemStatement: `<p class='mt-3'>
-  Given <code>n</code> jobs where each job has a unique <code>id</code>, a <code>deadline</code>, 
-  and a <code>profit</code>, find the maximum profit that can be obtained by scheduling jobs
-  within their deadlines.
+  Given an array of jobs where each job has an <code>id</code>, a <code>deadline</code>, and a <code>profit</code>,
+  find the maximum profit that can be obtained by scheduling jobs within their deadlines.
 </p>
 <p class='mt-3'>
   Each job takes exactly one unit of time and a job can only be scheduled before its deadline.
 </p>
 <p class='mt-3'>
-  Return an array containing the maximum profit and a list of job IDs in the order they were scheduled.
+  Return an object containing the maximum profit and a list of job IDs in the order they were scheduled.
 </p>`,
   examples: [
     {
