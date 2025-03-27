@@ -3,29 +3,33 @@ import { Problem } from "../types/problem";
 
 const starterCodeSubsetSum = `#include <bits/stdc++.h>
 using namespace std;
-int main() {
+bool subsetSum(vector<int>& nums, int target) {
   // Your code here
-  return 0;
+  return false;
 }`;
 
-const handlerSubsetSum = (fn: any) => {
-  try {
-    const testCases = [
-      { nums: [3, 34, 4, 12, 5, 2], target: 9, expected: true },
-      { nums: [1, 2, 3, 7], target: 6, expected: true },
-      { nums: [1, 2, 7, 1, 5], target: 10, expected: true },
-      { nums: [1, 3, 4, 8], target: 6, expected: false },
-    ];
+const inputSubsetSum = [
+  [[3, 34, 4, 12, 5, 2], 9],
+  [[1, 2, 3, 7], 6],
+  [[1, 2, 7, 1, 5], 10],
+  [[1, 3, 4, 8], 6],
+];
 
-    for (const { nums, target, expected } of testCases) {
-      const result = fn(nums, target);
-      assert.strictEqual(result, expected);
+const outputSubsetSum = [true, true, true, false];
+
+const createHandlerFunction = (testCases: any[], expectedResults: any[]) => {
+  return (fn: any) => {
+    try {
+      for (let i = 0; i < testCases.length; i++) {
+        const result = fn(...testCases[i]);
+        assert.strictEqual(result, expectedResults[i]);
+      }
+      return true;
+    } catch (error: any) {
+      console.log("Handler function error: ", error);
+      throw new Error(error);
     }
-    return true;
-  } catch (error: any) {
-    console.log("Subset Sum handler function error");
-    throw new Error(error);
-  }
+  };
 };
 
 export const subsetSum: Problem = {
@@ -67,8 +71,8 @@ export const subsetSum: Problem = {
 <li class='mt-2'>
   <code>1 ≤ target ≤ 1000</code>
 </li>`,
-  handlerFunction: handlerSubsetSum,
+  handlerFunction: createHandlerFunction(inputSubsetSum, outputSubsetSum),
   starterCode: starterCodeSubsetSum,
   order: 11,
-  starterFunctionName: "function subsetSum(",
+  starterFunctionName: "subsetSum",
 };

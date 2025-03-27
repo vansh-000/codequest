@@ -1,29 +1,45 @@
 import assert from "assert";
 import { Problem } from "../types/problem";
 
+const createHandlerFunction = (testCases: any[], expectedResults: any[]) => {
+  return (fn: any) => {
+    try {
+      for (let i = 0; i < testCases.length; i++) {
+        const result = fn(...testCases[i]);
+        assert.deepStrictEqual(result, expectedResults[i]);
+      }
+      return true;
+    } catch (error: any) {
+      console.error("Handler function error: ", error);
+      throw new Error(error);
+    }
+  };
+};
+
+const inputMaxDepth = [
+  [
+    // array format
+    [3, 9, 20, null, null, 15, 7],
+  ],
+  [
+    // array format
+    [1, null, 2],
+  ],
+  [
+    // array format
+    [],
+  ],
+  [
+    // array format
+    [0],
+  ],
+];
+
+const outputMaxDepth = [3, 2, 0, 1];
+
 const starterCodeMaxDepth = `function maxDepth(arr) {
   // Your code here
 }`;
-
-const handlerMaxDepth = (fn: any) => {
-  try {
-    const testCases = [
-      { input: [3, 9, 20, null, null, 15, 7], expected: 3 },
-      { input: [1, null, 2], expected: 2 },
-      { input: [], expected: 0 },
-      { input: [0], expected: 1 },
-    ];
-
-    for (const { input, expected } of testCases) {
-      const result = fn(input);
-      assert.strictEqual(result, expected);
-    }
-    return true;
-  } catch (error: any) {
-    console.log("Maximum Depth handler function error");
-    throw new Error(error);
-  }
-};
 
 export const maxDepth: Problem = {
   id: "max-depth-array",
@@ -69,8 +85,8 @@ export const maxDepth: Problem = {
 <li class='mt-2'>
   <code>-100 ≤ arr[i] ≤ 100 or null</code>
 </li>`,
-  handlerFunction: handlerMaxDepth,
+  handlerFunction: createHandlerFunction(inputMaxDepth, outputMaxDepth),
   starterCode: starterCodeMaxDepth,
   order: 12,
-  starterFunctionName: "function maxDepth(",
+  starterFunctionName: "maxDepth",
 };

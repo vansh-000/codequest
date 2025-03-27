@@ -1,20 +1,25 @@
 import assert from "assert";
 import { Problem } from "../types/problem";
 
-export const reverseArrayHandler = (fn: any) => {
-  try {
-    const tests = [[1, 2, 3, 4, 5], [5, 4, 3, 2, 1], [1, 2, 3], [1]];
-    const answers = [[5, 4, 3, 2, 1], [1, 2, 3, 4, 5], [3, 2, 1], [1]];
-    for (let i = 0; i < tests.length; i++) {
-      const result = fn(tests[i]);
-      assert.deepEqual(result, answers[i]);
+export const createHandlerFunction = (testCases: any[], expectedResults: any[]) => {
+  return (fn: any) => {
+    try {
+      for (let i = 0; i < testCases.length; i++) {
+        const result = fn(testCases[i]);
+        assert.deepStrictEqual(result, expectedResults[i]);
+      }
+      return true;
+    } catch (error: any) {
+      console.error("Handler function error: ", error);
+      throw new Error(error);
     }
-    return true;
-  } catch (error: any) {
-    console.log("Error from reverseArrayHandler: ", error);
-    throw new Error(error);
-  }
+  };
 };
+
+const testCases = [[1, 2, 3, 4, 5], [5, 4, 3, 2, 1], [1, 2, 3], [1]];
+const expectedResults = [[5, 4, 3, 2, 1], [1, 2, 3, 4, 5], [3, 2, 1], [1]];
+
+const reverseArrayHandler = createHandlerFunction(testCases, expectedResults);
 
 const starterCodeReverseArrayJS = `
 // Do not edit function name
@@ -26,7 +31,7 @@ export const reverseArray: Problem = {
   id: "reverse-array",
   title: "2. Reverse Array",
   problemStatement: `<p class='mt-3'>Given an array of integers, reverse the array and return it.</p>
-	`,
+  `,
   examples: [
     {
       id: 0,
@@ -51,3 +56,4 @@ export const reverseArray: Problem = {
   starterFunctionName: "function reverseArray(",
   order: 2,
 };
+

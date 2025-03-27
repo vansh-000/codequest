@@ -1,41 +1,57 @@
 import assert from "assert";
 import { Problem } from "../types/problem";
 
+export const createHandlerFunction = (
+  testCases: any[],
+  expectedResults: any[]
+) => {
+  return (fn: any) => {
+    try {
+      for (let i = 0; i < testCases.length; i++) {
+        const result = fn(...testCases[i]);
+        assert.deepStrictEqual(result, expectedResults[i]);
+      }
+      return true;
+    } catch (error: any) {
+      console.error("Handler function error: ", error);
+      throw new Error(error);
+    }
+  };
+};
+
+const inputKnapsack = [
+  [
+    // matrix
+    [
+      [60, 10],
+      [100, 20],
+      [120, 30],
+    ],
+    // integer
+    50,
+  ],
+  [
+    [
+      [500, 30],
+      [200, 10],
+      [100, 20],
+    ],
+    60,
+  ],
+  [
+    [
+      [10, 5],
+      [40, 4],
+    ],
+    10,
+  ],
+];
+
+const outputKnapsack = [240.0, 700.0, 50.0];
+
 const starterCodeKnapsack = `function fractionalKnapsack(items, capacity) {
   // Your code here
 }`;
-
-const handlerKnapsack = (fn: any) => {
-  try {
-    const capacities = [50, 60, 10];
-    const items = [
-      [
-        { value: 60, weight: 10 },
-        { value: 100, weight: 20 },
-        { value: 120, weight: 30 },
-      ],
-      [
-        { value: 500, weight: 30 },
-        { value: 200, weight: 10 },
-        { value: 100, weight: 20 },
-      ],
-      [
-        { value: 10, weight: 5 },
-        { value: 40, weight: 4 },
-      ],
-    ];
-    const answers = [240.0, 700.0, 50.0];
-
-    for (let i = 0; i < capacities.length; i++) {
-      const result = fn(items[i], capacities[i]);
-      assert.strictEqual(result, answers[i]);
-    }
-    return true;
-  } catch (error: any) {
-    console.log("Knapsack handler function error");
-    throw new Error(error);
-  }
-};
 
 export const knapsack: Problem = {
   id: "fractional-knapsack",
@@ -54,7 +70,7 @@ export const knapsack: Problem = {
     {
       id: 1,
       inputText:
-        "capacity = 50, items = [{value:60, weight:10}, {value:100, weight:20}, {value:120, weight:30}]",
+        "items = [{value:60, weight:10}, {value:100, weight:20}, {value:120, weight:30}], capacity = 50",
       outputText: "240.0",
       explanation:
         "Take all of item 1 and item 2, then 2/3 of item 3 for a total value of 240.",
@@ -62,14 +78,15 @@ export const knapsack: Problem = {
     {
       id: 2,
       inputText:
-        "capacity = 60, items = [{value:500, weight:30}, {value:200, weight:10}, {value:100, weight:20}]",
+        "items = [{value:500, weight:30}, {value:200, weight:10}, {value:100, weight:20}], capacity = 60",
       outputText: "700.0",
       explanation:
         "Take all of item 1 and item 2, then all of item 3 for a total value of 700.",
     },
     {
       id: 3,
-      inputText: "capacity = 10, items = [{value:10, weight:5}, {value:40, weight:4}]",
+      inputText:
+        "items = [{value:10, weight:5}, {value:40, weight:4}], capacity = 10",
       outputText: "50.0",
     },
   ],
@@ -82,8 +99,8 @@ export const knapsack: Problem = {
 <li class='mt-2'>
   <code>1 ≤ value[i], weight[i] ≤ 10<sup>4</sup></code>
 </li>`,
-  handlerFunction: handlerKnapsack,
+  handlerFunction: createHandlerFunction(inputKnapsack, outputKnapsack),
   starterCode: starterCodeKnapsack,
   order: 8,
-  starterFunctionName: "function fractionalKnapsack(",
+  starterFunctionName: "fractionalKnapsack",
 };

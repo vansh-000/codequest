@@ -1,44 +1,54 @@
 import assert from "assert";
 import { Problem } from "../types/problem";
 
+const createHandlerFunction = (testCases: any[], expectedResults: any[]) => {
+  return (fn: any) => {
+    try {
+      for (let i = 0; i < testCases.length; i++) {
+        const result = fn(...testCases[i]);
+        assert.deepStrictEqual(result, expectedResults[i]);
+      }
+      return true;
+    } catch (error: any) {
+      console.error("Handler function error: ", error);
+      throw new Error(error);
+    }
+  };
+};
+
+const inputCelebrity = [
+  [
+    // matrix format
+    [
+      [0, 1, 0],
+      [0, 0, 0],
+      [0, 1, 0],
+    ],
+  ],
+  [
+    [
+      [0, 1],
+      [1, 0],
+    ],
+  ],
+  [
+    [
+      [0, 1, 1, 0],
+      [0, 0, 1, 0],
+      [0, 0, 0, 0],
+      [0, 1, 1, 0],
+    ],
+  ],
+];
+
+const outputCelebrity = [1, -1, 2];
+
 const starterCodeCelebrity = `#include <bits/stdc++.h>
 using namespace std;
 int findCelebrity(vector<vector<int>>& M) {
   // Your code here
   return -1;
 }`;
-
-const handlerCelebrity = (fn: any) => {
-  try {
-    const knowsMatrix = [
-      [
-        [0, 1, 0],
-        [0, 0, 0],
-        [0, 1, 0],
-      ],
-      [
-        [0, 1],
-        [1, 0],
-      ],
-      [
-        [0, 1, 1, 0],
-        [0, 0, 1, 0],
-        [0, 0, 0, 0],
-        [0, 1, 1, 0],
-      ],
-    ];
-    const answers = [1, -1, 2];
-
-    for (let i = 0; i < knowsMatrix.length; i++) {
-      const result = fn(knowsMatrix[i]);
-      assert.strictEqual(result, answers[i]);
-    }
-    return true;
-  } catch (error: any) {
-    console.log("celebrity handler function error");
-    throw new Error(error);
-  }
-};
 
 export const celebrity: Problem = {
   id: "celebrity",
@@ -81,7 +91,7 @@ export const celebrity: Problem = {
 <li class='mt-2'>
   <code>M[i][i] = 0</code> (A person does not know themselves)
 </li>`,
-  handlerFunction: handlerCelebrity,
+  handlerFunction: createHandlerFunction(inputCelebrity, outputCelebrity),
   starterCode: starterCodeCelebrity,
   order: 4,
   starterFunctionName: "findCelebrity",

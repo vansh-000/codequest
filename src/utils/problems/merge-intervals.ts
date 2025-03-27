@@ -1,57 +1,62 @@
 import assert from "assert";
 import { Problem } from "../types/problem";
 
-const starterCodeMergeIntervals = `#include <bits/stdc++.h>
-using namespace std;
-int main() {
-  // Your code here
-  return 0;
-}`;
-
-const handlerMergeIntervals = (fn: any) => {
-  try {
-    const testCases = [
-      {
-        intervals: [
-          [1, 3],
-          [2, 6],
-          [8, 10],
-          [15, 18],
-        ],
-        expected: [
-          [1, 6],
-          [8, 10],
-          [15, 18],
-        ],
-      },
-      {
-        intervals: [
-          [1, 4],
-          [4, 5],
-        ],
-        expected: [[1, 5]],
-      },
-      {
-        intervals: [
-          [6, 8],
-          [1, 9],
-          [2, 4],
-          [4, 7],
-        ],
-        expected: [[1, 9]],
-      },
-    ];
-
-    for (const { intervals, expected } of testCases) {
-      const result = fn(intervals);
-      assert.deepStrictEqual(result, expected);
+export const createHandlerFunction = (
+  testCases: any[],
+  expectedResults: any[]
+) => {
+  return (fn: any) => {
+    try {
+      for (let i = 0; i < testCases.length; i++) {
+        const result = fn(...testCases[i]);
+        assert.deepStrictEqual(result, expectedResults[i]);
+      }
+      return true;
+    } catch (error: any) {
+      console.error("Handler function error: ", error);
+      throw new Error(error);
     }
-    return true;
-  } catch (error: any) {
-    console.log("Merge Intervals handler function error");
-    throw new Error(error);
-  }
+  };
 };
+
+const inputMergeIntervals = [
+  [
+    [
+      [1, 3],
+      [2, 6],
+      [8, 10],
+      [15, 18],
+    ],
+  ],
+  [
+    [
+      [1, 4],
+      [4, 5],
+    ],
+  ],
+  [
+    [
+      [6, 8],
+      [1, 9],
+      [2, 4],
+      [4, 7],
+    ],
+  ],
+];
+
+const outputMergeIntervals = [
+  [
+    [1, 6],
+    [8, 10],
+    [15, 18],
+  ],
+  [[1, 5]],
+  [[1, 9]],
+];
+
+const starterCodeMergeIntervals = `function mergeIntervals(intervals) {
+  // Your code here
+}`;
 
 export const mergeIntervals: Problem = {
   id: "merge-intervals",
@@ -72,7 +77,8 @@ export const mergeIntervals: Problem = {
       id: 2,
       inputText: "intervals = [[1,4],[4,5]]",
       outputText: "[[1,5]]",
-      explanation: "Since intervals [1,4] and [4,5] overlap, they are merged into [1,5].",
+      explanation:
+        "Since intervals [1,4] and [4,5] overlap, they are merged into [1,5].",
     },
     {
       id: 3,
@@ -90,8 +96,11 @@ export const mergeIntervals: Problem = {
 <li class='mt-2'>
   <code>0 ≤ start<sub>i</sub> ≤ end<sub>i</sub> ≤ 10⁴</code>
 </li>`,
-  handlerFunction: handlerMergeIntervals,
-  starterCode: starterCodeMergeIntervals,
+  handlerFunction: createHandlerFunction(
+    inputMergeIntervals,
+    outputMergeIntervals
+  ),
   order: 15,
-  starterFunctionName: "function mergeIntervals(",
+  starterFunctionName: "mergeIntervals",
+  starterCode: starterCodeMergeIntervals,
 };
