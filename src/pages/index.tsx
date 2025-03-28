@@ -17,12 +17,22 @@ export default function Home() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-
+    console.log(storedUser);
     if (storedUser) {
-      setAuthState((prev) => ({ ...prev, user: JSON.parse(storedUser) }));
-    } else {
-      setAuthState((prev) => ({ ...prev, isOpen: true, type: "login" }));
-      router.push("/auth");
+      try {
+        const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+        if (parsedUser) {
+          setAuthState((prev) => ({ ...prev, user: parsedUser }));
+        } else {
+          setAuthState((prev) => ({ ...prev, isOpen: true, type: "login" }));
+          router.push("/auth");
+        }
+      } catch (error) {
+        console.error("Error parsing storedUser:", error);
+        localStorage.removeItem("user");
+        setAuthState((prev) => ({ ...prev, isOpen: true, type: "login" }));
+        router.push("/auth");
+      }
     }
   }, [router, setAuthState]);
 

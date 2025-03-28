@@ -2,14 +2,14 @@ import assert from "assert";
 import { Problem } from "../types/problem";
 
 const input = [
-    [
-      [1, 3, 0, 5, 8, 5],
-      [2, 4, 6, 7, 9, 9],
-    ],
-    [
-      [10, 12, 20],
-      [20, 25, 30],
-    ],
+  [
+    [1, 3, 0, 5, 8, 5],
+    [2, 4, 6, 7, 9, 9],
+  ],
+  [
+    [10, 12, 20],
+    [20, 25, 30],
+  ],
 ];
 
 const output = [

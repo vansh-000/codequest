@@ -3,11 +3,9 @@ import Button from "../UI/Button";
 import { useSetRecoilState } from "recoil";
 import { authModalState } from "@/atoms/authModalAtom";
 import { toast } from "react-toastify";
-import { useRouter } from "next/router";
 
 const Signup: React.FC = () => {
   const setAuthModalState = useSetRecoilState(authModalState);
-  const router = useRouter();
 
   const [inputs, setInputs] = useState({
     email: "",
@@ -49,27 +47,13 @@ const Signup: React.FC = () => {
       );
 
       const data = await response.json();
-      if (!response.ok)
-        // throw new Error(data?.message || "Registration failed");
-        throw data;
+      if (!response.ok) throw data;
 
-      // Update auth state & close modal
-      setAuthModalState((prev) => ({
-        ...prev,
-        isOpen: false, // Close modal after successful signup
-        user: {
-          userId: data.userId,
-          username: data.username,
-          email: data.email,
-        },
-      }));
+      toast.success("Account created, please Login !", {
+        position: "top-center",
+        autoClose: 3000,
+      });
 
-      // Store tokens securely
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
-      localStorage.setItem("user", JSON.stringify(data.data.user));
-
-      // Reset form
       setInputs({
         email: "",
         username: "",
@@ -77,11 +61,10 @@ const Signup: React.FC = () => {
         role: "user",
       });
 
-      toast.success("Account created successfully!", {
-        position: "top-center",
-        autoClose: 3000,
-      });
-      router.push("/");
+      setAuthModalState((prev) => ({
+        ...prev,
+        type: "login",
+      }));
     } catch (error: any) {
       const errorMessage = error?.message || "An unexpected error occurred";
       toast.error(errorMessage, { position: "top-center" });
