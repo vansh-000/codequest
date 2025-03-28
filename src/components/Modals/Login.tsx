@@ -64,11 +64,7 @@ const Login: React.FC = () => {
         },
       }));
 
-      toast.success("Login successful!", {
-        position: "top-center",
-        autoClose: 3000,
-        theme: "dark",
-      });
+      toast.success("Login successful!");
 
       router.push("/");
     } catch (error: any) {
