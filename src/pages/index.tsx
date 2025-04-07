@@ -17,12 +17,18 @@ export default function Home() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    console.log(storedUser);
+
     if (storedUser) {
       try {
-        const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+        const parsedUser = JSON.parse(storedUser);
+        console.log(parsedUser);
+        console.log(parsedUser.role);
+
         if (parsedUser) {
           setAuthState((prev) => ({ ...prev, user: parsedUser }));
+          if (parsedUser.role === "admin") {
+            router.push("/admin");
+          }
         } else {
           setAuthState((prev) => ({ ...prev, isOpen: true, type: "login" }));
           router.push("/auth");
@@ -35,6 +41,7 @@ export default function Home() {
       }
     }
   }, [router, setAuthState]);
+
 
   if (!hasMounted || !authState.user) return null;
 

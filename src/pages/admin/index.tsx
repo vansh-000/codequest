@@ -1,5 +1,6 @@
 "use client";
 
+import Logout from "@/components/UI/LogoutBtn";
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
@@ -123,6 +124,9 @@ const AdminPage: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
       <div className="w-full max-w-4xl bg-gray-800 text-white p-6 rounded-xl shadow-lg">
+        <div className="absolute top-4 right-4">
+          <Logout />
+        </div>
         <h2 className="text-3xl font-bold text-center mb-4">Admin Panel</h2>
         {message && (
           <p className="py-2 px-4 text-center text-sm font-semibold rounded-lg bg-gray-700 text-blue-400">
