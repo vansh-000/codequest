@@ -17,7 +17,7 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
         const explanation = ex.match(/Explanation:\s*(.+)$/i)?.[1]?.trim() ?? "";
         return { inputText, outputText, explanation };
       }
-      return ex; // already structured
+      return ex;
     });
   }, [problem.examples]);
 

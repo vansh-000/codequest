@@ -6,8 +6,8 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import Logout from "@/components/UI/LogoutBtn";
 
 interface TestCase {
-  input: string[];
-  expectedOutput: string;
+  input: string;
+  output: string;
 }
 
 interface ProblemFormData {
@@ -131,8 +131,8 @@ const EditProblemPage: React.FC = () => {
             constraints,
             examples,
             testCases: testCases.map((tc) => ({
-              input: tc.input.map((str) => str.trim()),
-              expectedOutput: tc.expectedOutput.trim(),
+              input: tc.input,
+              output: tc.output,
             })),
           }),
         }
@@ -176,7 +176,7 @@ const EditProblemPage: React.FC = () => {
   };
 
   const addTestCase = () => {
-    setTestCases([...testCases, { input: [], expectedOutput: "" }]);
+    setTestCases([...testCases, { input: "", output: "" }]);
   };
 
   const removeTestCase = (index: number) => {
@@ -186,22 +186,10 @@ const EditProblemPage: React.FC = () => {
   const updateTestCase = (
     index: number,
     field: keyof TestCase,
-    value: string | string[]
+    value: string
   ) => {
-    setTestCases((prevTestCases) =>
-      prevTestCases.map((tc, i) =>
-        i === index
-          ? {
-            ...tc,
-            [field]:
-              field === "input"
-                ? Array.isArray(value)
-                  ? value.map((str) => str.trim())
-                  : value.split(",").map((str) => str.trim())
-                : value,
-          }
-          : tc
-      )
+    setTestCases((prev) =>
+      prev.map((tc, i) => (i === index ? { ...tc, [field]: value } : tc))
     );
   };
 
@@ -371,16 +359,16 @@ const EditProblemPage: React.FC = () => {
               </div>
               <input
                 type="text"
-                value={tc.input.join(", ")}
+                value={tc.input}
                 onChange={(e) => updateTestCase(index, "input", e.target.value)}
                 placeholder="Test case input (comma-separated)"
                 className="w-full p-2 border border-gray-700 bg-gray-900 rounded-lg"
               />
               <input
                 type="text"
-                value={tc.expectedOutput}
+                value={tc.output}
                 onChange={(e) =>
-                  updateTestCase(index, "expectedOutput", e.target.value)
+                  updateTestCase(index, "output", e.target.value)
                 }
                 placeholder="Expected output"
                 className="w-full p-2 border border-gray-700 bg-gray-900 rounded-lg"

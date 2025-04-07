@@ -6,8 +6,8 @@ import { useRouter } from "next/router";
 import { useForm, SubmitHandler } from "react-hook-form";
 
 interface TestCase {
-  input: string[];
-  expectedOutput: string;
+  input: string; 
+  output: string;
 }
 
 interface ProblemFormData {
@@ -84,8 +84,8 @@ const AdminPage: React.FC = () => {
             constraints,
             examples,
             testCases: testCases.map((tc) => ({
-              input: tc.input.map((str) => str.trim()),
-              expectedOutput: tc.expectedOutput.trim(),
+              input: tc.input.trim(),
+              output: tc.output.trim(),
             })),
             likes: data.likes || 0,
             dislikes: data.dislikes || 0,
@@ -110,6 +110,7 @@ const AdminPage: React.FC = () => {
 
     setLoading(false);
   };
+
   const addConstraint = () => {
     if (newConstraint.trim()) {
       setConstraints((prevConstraints) => [
@@ -128,20 +129,21 @@ const AdminPage: React.FC = () => {
   };
 
   const addTestCase = () => {
-    setTestCases([...testCases, { input: [], expectedOutput: "" }]);
+    setTestCases([...testCases, { input: "", output: "" }]); // input is string now
   };
 
   const updateTestCase = (
     index: number,
     field: keyof TestCase,
-    value: string | string[]
+    value: string
   ) => {
     setTestCases((prevTestCases) =>
       prevTestCases.map((tc, i) =>
         i === index
           ? {
-            ...tc, [field]: field === "input" ? Array.isArray(value) ? value.map((str) => str.trim()) : [value.trim()] : value,
-          }
+              ...tc,
+              [field]: value,
+            }
           : tc
       )
     );
@@ -240,6 +242,7 @@ const AdminPage: React.FC = () => {
               </li>
             ))}
           </ul>
+
           <h3 className="text-lg font-semibold">Examples</h3>
           <div className="flex space-x-2">
             <input
@@ -264,21 +267,24 @@ const AdminPage: React.FC = () => {
               </li>
             ))}
           </ul>
+
           <h3 className="text-lg font-semibold">Test Cases</h3>
           {testCases.map((tc, index) => (
             <div key={index} className="space-y-2">
               <input
                 type="text"
-                value={tc.input.join(", ")}
-                onChange={(e) => updateTestCase(index, "input", e.target.value)}
-                placeholder="Test case input (comma-separated)"
+                value={tc.input}
+                onChange={(e) =>
+                  updateTestCase(index, "input", e.target.value)
+                }
+                placeholder="Test case input"
                 className="w-full p-2 border border-gray-700 bg-gray-900 rounded-lg"
               />
               <input
                 type="text"
-                value={tc.expectedOutput}
+                value={tc.output}
                 onChange={(e) =>
-                  updateTestCase(index, "expectedOutput", e.target.value)
+                  updateTestCase(index, "output", e.target.value)
                 }
                 placeholder="Expected output"
                 className="w-full p-2 border border-gray-700 bg-gray-900 rounded-lg"

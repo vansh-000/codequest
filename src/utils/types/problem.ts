@@ -3,7 +3,10 @@ export type Example = {
 	outputText: string;
 	explanation?: string;
 };
-
+export type TestCase = {
+	input: string;
+	output: string;
+};
 export type Problem = {
 	_id: string;
 	title: string;
@@ -12,6 +15,7 @@ export type Problem = {
 	order: number;
 	likes: number;
 	dislikes: number;
+	testCases:TestCase[];
 	description: string;
 	examples: Example[];
 	constraints: string[];
