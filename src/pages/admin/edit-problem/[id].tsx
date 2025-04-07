@@ -99,12 +99,12 @@ const EditProblemPage: React.FC = () => {
       setValue("videoId", problem.videoId);
       setValue("likes", problem.likes || 0);
       setValue("dislikes", problem.dislikes || 0);
-      
+
       // Set state values
       setConstraints(problem.constraints || []);
       setExamples(problem.examples || []);
       setTestCases(problem.testCases || []);
-      
+
     } catch (error) {
       console.error("Error fetching problem details:", error);
       setMessage("❌ Error loading problem details");
@@ -192,14 +192,14 @@ const EditProblemPage: React.FC = () => {
       prevTestCases.map((tc, i) =>
         i === index
           ? {
-              ...tc,
-              [field]:
-                field === "input"
-                  ? Array.isArray(value)
-                    ? value.map((str) => str.trim())
-                    : value.split(",").map((str) => str.trim())
-                  : value,
-            }
+            ...tc,
+            [field]:
+              field === "input"
+                ? Array.isArray(value)
+                  ? value.map((str) => str.trim())
+                  : value.split(",").map((str) => str.trim())
+                : value,
+          }
           : tc
       )
     );
@@ -326,12 +326,11 @@ const EditProblemPage: React.FC = () => {
 
           <h3 className="text-lg font-semibold">Examples</h3>
           <div className="flex space-x-2">
-            <input
-              type="text"
+            <textarea
               value={newExample}
               onChange={(e) => setNewExample(e.target.value)}
               placeholder="Add example"
-              className="flex-grow p-2 border border-gray-700 bg-gray-900 rounded-lg"
+              className="flex-grow p-2 border border-gray-700 bg-gray-900 rounded-lg resize-none h-20"
             />
             <button
               type="button"
@@ -344,7 +343,7 @@ const EditProblemPage: React.FC = () => {
           <ul className="mt-2 space-y-2">
             {examples.map((example, index) => (
               <li key={index} className="flex justify-between items-center text-sm bg-gray-700 p-2 rounded-lg">
-                <span>{example}</span>
+                <span className="whitespace-pre-wrap">{example}</span>
                 <button
                   type="button"
                   onClick={() => removeExample(index)}
@@ -355,6 +354,7 @@ const EditProblemPage: React.FC = () => {
               </li>
             ))}
           </ul>
+
 
           <h3 className="text-lg font-semibold">Test Cases</h3>
           {testCases.map((tc, index) => (

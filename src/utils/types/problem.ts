@@ -1,21 +1,24 @@
 export type Example = {
-	id: number;
 	inputText: string;
 	outputText: string;
 	explanation?: string;
-	img?: string;
 };
 
 export type Problem = {
-	id: string;
+	_id: string;
 	title: string;
-	problemStatement: string;
-	examples: Example[];
-	constraints: string;
+	category: string;
+	difficulty: "Easy" | "Medium" | "Hard";
 	order: number;
+	likes: number;
+	dislikes: number;
+	description: string;
+	examples: Example[];
+	constraints: string[];
+	handlerFunction: string;
 	starterCode: string;
-	handlerFunction: ((fn: any) => boolean) | string;
-	starterFunctionName: string;
+	videoId?: string;
+	link?: string;
 };
 
 export type DBProblem = {
@@ -23,9 +26,6 @@ export type DBProblem = {
 	title: string;
 	category: string;
 	difficulty: string;
-	likes: number;
-	dislikes: number;
-	order: number;
 	videoId?: string;
 	link?: string;
 };

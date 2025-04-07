@@ -1,18 +1,50 @@
 import Topbar from "@/components/Topbar/topbar";
 import Workspace from "@/components/Workspace/workspace";
 import useHasMounted from "@/hooks/useHasMounted";
-import { problems } from "@/utils/problems";
 import { Problem } from "@/utils/types/problem";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
-type ProblemPageProps = {
-  problem: Problem;
-};
-
-const ProblemPage: React.FC<ProblemPageProps> = ({ problem }) => {
+const ProblemPage: React.FC = () => {
   const hasMounted = useHasMounted();
+  const router = useRouter();
+  const { _id } = router.query;
+
+  const [problem, setProblem] = useState<Problem | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!_id) return;
+    const fetchProblem = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/problems/get-problem/${_id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || "Failed to fetch problem");
+
+        data.message.handlerFunction = data.message.handlerFunction?.toString();
+
+        setProblem(data.message);
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || "Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProblem();
+  }, [_id]);
 
   if (!hasMounted) return null;
+  if (loading) return <div className="text-white p-4">Loading...</div>;
+  if (error) return <div className="text-red-400 p-4">Error: {error}</div>;
+  if (!problem) return <div className="text-yellow-400 p-4">Problem not found</div>;
 
   return (
     <div>
@@ -21,37 +53,5 @@ const ProblemPage: React.FC<ProblemPageProps> = ({ problem }) => {
     </div>
   );
 };
+
 export default ProblemPage;
-
-// fetch the local data
-//  SSG
-// getStaticPaths => it create the dynamic routes
-export async function getStaticPaths() {
-  const paths = Object.keys(problems).map((key) => ({
-    params: { _id: key },
-  }));
-
-  return {
-    paths,
-    fallback: false,
-  };
-}
-
-// getStaticProps => it fetch the data
-
-export async function getStaticProps({ params }: { params: { _id: string } }) {
-  const { _id } = params;
-  const problem = problems[_id];
-
-  if (!problem) {
-    return {
-      notFound: true,
-    };
-  }
-  problem.handlerFunction = problem.handlerFunction.toString();
-  return {
-    props: {
-      problem,
-    },
-  };
-}
