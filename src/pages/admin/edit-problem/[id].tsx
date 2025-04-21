@@ -18,6 +18,7 @@ interface ProblemFormData {
   examples: string[];
   constraints: string[];
   starterCode: string;
+  helperCode: string;
   likes?: number;
   dislikes?: number;
   order: number;
@@ -95,6 +96,7 @@ const EditProblemPage: React.FC = () => {
       setValue("difficulty", problem.difficulty);
       setValue("description", problem.description);
       setValue("starterCode", problem.starterCode);
+      setValue("helperCode", problem.helperCode);
       setValue("order", problem.order);
       setValue("videoId", problem.videoId);
       setValue("likes", problem.likes || 0);
@@ -255,6 +257,8 @@ const EditProblemPage: React.FC = () => {
             />
           </div>
 
+
+          <h3 className="text-lg font-semibold">Description</h3>
           <textarea
             {...register("description", {
               required: "Description is required",
@@ -264,6 +268,7 @@ const EditProblemPage: React.FC = () => {
             rows={4}
           />
 
+          <h3 className="text-lg font-semibold">Video Id</h3>
           <input
             {...register("videoId", { required: "Video ID is required" })}
             placeholder="Video ID"
@@ -276,6 +281,16 @@ const EditProblemPage: React.FC = () => {
               required: "Starter code is required",
             })}
             placeholder="Starter Code"
+            className="w-full p-3 border border-gray-700 bg-gray-900 rounded-lg"
+            rows={4}
+          />
+
+          <h3 className="text-lg font-semibold">Helper Code</h3>
+          <textarea
+            {...register("helperCode", {
+              required: "Helper code is required",
+            })}
+            placeholder="Helper Code"
             className="w-full p-3 border border-gray-700 bg-gray-900 rounded-lg"
             rows={4}
           />

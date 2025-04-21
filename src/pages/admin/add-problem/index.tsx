@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import { useForm, SubmitHandler } from "react-hook-form";
 
 interface TestCase {
-  input: string; 
+  input: string;
   output: string;
 }
 
@@ -19,6 +19,7 @@ interface ProblemFormData {
   constraints: string[];
   testCases: TestCase[];
   starterCode: string;
+  helperCode: string;
   likes?: number;
   dislikes?: number;
   order: number;
@@ -48,21 +49,16 @@ const AdminPage: React.FC = () => {
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        console.log(parsedUser);
-        console.log(parsedUser.role);
-
-        if (parsedUser) {
-          if (parsedUser.role === "user") {
-            router.push("/");
-          }
-        } else {
-          router.push("/admin");
+        if (parsedUser?.role === "user") {
+          router.push("/");
         }
       } catch (error) {
         console.error("Error parsing storedUser:", error);
         localStorage.removeItem("user");
         router.push("/admin");
       }
+    } else {
+      router.push("/admin");
     }
   }, [router]);
 
@@ -129,7 +125,7 @@ const AdminPage: React.FC = () => {
   };
 
   const addTestCase = () => {
-    setTestCases([...testCases, { input: "", output: "" }]); // input is string now
+    setTestCases([...testCases, { input: "", output: "" }]);
   };
 
   const updateTestCase = (
@@ -214,6 +210,16 @@ const AdminPage: React.FC = () => {
               required: "Starter code is required",
             })}
             placeholder="Starter Code"
+            className="w-full p-3 border border-gray-700 bg-gray-900 rounded-lg"
+            rows={4}
+          />
+
+          <h3 className="text-lg font-semibold">Helper Code</h3>
+          <textarea
+            {...register("helperCode", {
+              required: "Helper code is required",
+            })}
+            placeholder="Helper Code"
             className="w-full p-3 border border-gray-700 bg-gray-900 rounded-lg"
             rows={4}
           />
