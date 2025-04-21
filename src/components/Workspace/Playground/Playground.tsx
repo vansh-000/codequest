@@ -23,9 +23,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
     setError(null);
     try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/playground/run`, {
-        code,
-        language: "cpp",
-        testCases: problem.testCases,
+        code: code + problem.helperCode
       });
       setOutputs(res.data.outputs);
     } catch (err: any) {
@@ -35,36 +33,13 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
     }
   };
 
-  // const handleSubmit = async () => {
-  //   setLoading(true);
-  //   setError(null);
-  //   try {
-  //     const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/playground/submit`, {
-  //       code: code + problem.helperCode,
-  //       language: "cpp",
-  //       problemId: problem._id,
-  //     });
-  //     console.log("Submission result:", res.data);
-  //   } catch (err: any) {
-  //     setError(err.response?.data?.message || err.message);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      // Log the test cases for debugging
-      console.log("Problem test cases:", problem.testCases);
-      
       const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/playground/submit`, {
-        code: code + problem.helperCode,
-        language: "cpp",
-        problemId: problem._id,
-        testCases: problem.testCases,
+        code: code + problem.helperCode
       });
       
       console.log("Submission result:", res.data);
