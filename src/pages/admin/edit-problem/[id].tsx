@@ -17,6 +17,7 @@ interface ProblemFormData {
   description: string;
   examples: string[];
   constraints: string[];
+  testCases: TestCase[];
   starterCode: string;
   helperCode: string;
   likes?: number;

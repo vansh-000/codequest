@@ -20,6 +20,7 @@ export type Problem = {
 	examples: Example[];
 	constraints: string[];
 	handlerFunction: string;
+	helperCode: string;
 	starterCode: string;
 	videoId?: string;
 	link?: string;
