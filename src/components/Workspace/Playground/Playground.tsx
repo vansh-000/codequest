@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PreferenceNav from "./PreferenceNav/PreferenceNav";
 import Split from "react-split";
 import CodeMirror from "@uiw/react-codemirror";
@@ -18,6 +18,10 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    setCode(problem.starterCode);
+  }, [problem])
+
   const handleRun = async () => {
     setLoading(true);
     setError(null);
@@ -36,14 +40,14 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/playground/submit`, {
         code: code + problem.helperCode
       });
-      
+
       console.log("Submission result:", res.data);
-      
+
       if (res.data.error) {
         setError(res.data.error);
       } else if (res.data.outputs) {

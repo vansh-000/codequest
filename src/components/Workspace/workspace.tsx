@@ -6,7 +6,8 @@ import Confetti from "react-confetti";
 import useWindowSize from "@/hooks/useWindowSize";
 import { Problem } from "@/utils/types/problem";
 
-type WorkspaceProps = {problem: Problem;
+type WorkspaceProps = {
+	problem: Problem;
 };
 
 const Workspace: React.FC<WorkspaceProps> = ({ problem }) => {
@@ -15,10 +16,9 @@ const Workspace: React.FC<WorkspaceProps> = ({ problem }) => {
 	const [solved, setSolved] = useState(false);
 	return (
 		<Split className='split' minSize={0}>
-			<ProblemDescription problem={problem}/>
+			<ProblemDescription problem={problem} />
 			<div className='bg-dark-fill-2'>
-				<Playground problem={problem}/>
-				{success && <Confetti gravity={0.3} tweenDuration={4000} width={width - 1} height={height - 1} />}
+				<Playground problem={problem} />
 			</div>
 		</Split>
 	);
