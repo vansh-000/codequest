@@ -13,6 +13,28 @@ const ProblemPage: React.FC = () => {
   const [problem, setProblem] = useState<Problem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [problemIds, setProblemIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchAllProblems = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/problems/get-problems`,
+          {
+            method: "GET",
+            credentials: "include",
+          });
+        const data = await res.json();
+        console.log(data.message)
+        const sortedIds = data.message.map(item => item._id);
+        setProblemIds(sortedIds);
+      } catch (err: any) {
+        console.error("Failed to fetch problem list", err);
+      }
+    };
+
+    fetchAllProblems();
+  }, []);
 
   useEffect(() => {
     if (!_id) return;
@@ -48,7 +70,7 @@ const ProblemPage: React.FC = () => {
 
   return (
     <div>
-      <Topbar problemPage />
+      <Topbar problemPage problemId={_id as string} problemIds={problemIds} />
       <Workspace problem={problem} />
     </div>
   );

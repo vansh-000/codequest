@@ -15,7 +15,7 @@ type AuthModalState = {
 const initalAuthModalState: AuthModalState = {
   isOpen: false,
   type: "login",
-  user: null, // No user by default
+  user: null,
 };
 
 export const authModalState = atom<AuthModalState>({
