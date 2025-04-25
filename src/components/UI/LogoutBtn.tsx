@@ -16,7 +16,6 @@ const Logout: React.FC = () => {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/logout`,
         {
           method: "POST",
-          credentials: "include",
         }
       );
 
