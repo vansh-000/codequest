@@ -48,7 +48,8 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
       });
       console.log("Submission result:", res.data);
       if (res.data.error) {
-        setError(res.data.error);
+        // console.log("Error:", res.data.error);
+        setError(res.data.errors);
       } else if (res.data.outputs) {
         setOutputs(res.data.outputs);
       }
