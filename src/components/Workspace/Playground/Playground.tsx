@@ -12,13 +12,22 @@ type PlaygroundProps = {
   problem: Problem;
 };
 
+type SubmissionStatus = "Accepted" | "Wrong Answer" | "Compilation Error";
+
 const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
   const [code, setCode] = useState(problem.starterCode);
-  const [outputs, setOutputs] = useState<string[]>([]);
+  const [output, setoutput] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
+  // get user from localhost
+  const userString = localStorage.getItem("user") || null;
+  const user = JSON.parse(userString);
+  const userId = user._id;
+
+  console.log(userId);
 
   useEffect(() => {
     setCode(problem.starterCode);
@@ -31,7 +40,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/playground/run`, {
         code: code + problem.helperCode
       });
-      setOutputs(res.data.outputs);
+      setoutput(res.data.output);
     } catch (err: any) {
       setError(err.response?.data?.message || err.message);
     } finally {
@@ -39,22 +48,74 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
     }
   };
 
+  const createSubmission = async (status: SubmissionStatus, resultScore: number = 0) => {
+    try {
+      const submissionData = {
+        code: code,
+        language: "cpp",
+        status: status,
+        score: resultScore
+      };
+
+      console.log(submissionData);
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/user/${userId}/problem/${problem._id}`,
+        submissionData
+      );
+
+      console.log("Submission created:", response.data);
+      return response.data;
+    } catch (err: any) {
+      console.error("Failed to create submission:", err);
+      setError(prev => `${prev ? prev + '. ' : ''}Failed to save submission: ${err.response?.data?.message || err.message}`);
+      return null;
+    }
+  };
+
+  const validateResults = (output: string[]): { isCorrect: boolean; score: number } => {
+    let correctCount = 0;
+    const totalTestCases = problem.testCases.length;
+    for (let i = 0; i < Math.min(totalTestCases, output.length); i++) {
+      if (output[i].trim() === problem.testCases[i].output.trim()) {
+        correctCount++;
+      }
+    }
+    const score = correctCount * 10;
+
+    return {
+      isCorrect: correctCount === totalTestCases,
+      score
+    };
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
+    setSubmissionStatus(null);
+
     try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/playground/submit`, {
         code: code + problem.helperCode
       });
-      console.log("Submission result:", res.data);
+
+      console.log(res.data)
+
       if (res.data.error) {
-        // console.log("Error:", res.data.error);
         setError(res.data.errors);
-      } else if (res.data.outputs) {
-        setOutputs(res.data.outputs);
+        await createSubmission("Wrong Answer", 0);
+        setSubmissionStatus("Wrong Answer");
+      } else if (res.data.output) {
+        console.log("Accepted :: ")
+        console.log(res.data.output)
+        setoutput(res.data.output);
+        await createSubmission("Accepted", 10);
+        setSubmissionStatus("Accepted");
       }
     } catch (err: any) {
       setError(err.response?.data?.message || err.message);
+      await createSubmission("Compilation Error", 0);
+      setSubmissionStatus("Compilation Error");
     } finally {
       setLoading(false);
     }
@@ -62,12 +123,11 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement && editorRef.current) {
-      console.log(editorRef.current.parentNode?.parentNode);
-      const node = editorRef.current.parentNode?.parentNode?.parentNode;
+      const node = editorRef.current.parentNode?.parentNode?.parentNode as any;
       if (!node) return;
       node.requestFullscreen().catch((err) => {
         console.error("Error attempting to enable full-screen mode:", err);
-      })
+      });
     } else {
       document.exitFullscreen();
     }
@@ -101,7 +161,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
     <div ref={editorRef} className="flex flex-col bg-dark-layer-1 relative overflow-x-hidden">
       <div className='flex items-center justify-between bg-dark-layer-2 h-11 w-full'>
         <div className='flex items-center text-white'>
-          <button className='flex cursor-pointer items-center rounded focus:outline-none bg-dark-fill-3 text-dark-label-2 hover:bg-dark-fill-2  px-2 py-1.5 font-medium'>
+          <button className='flex cursor-pointer items-center rounded focus:outline-none bg-dark-fill-3 text-dark-label-2 hover:bg-dark-fill-2 px-2 py-1.5 font-medium'>
             <div className='flex items-center px-1'>
               <div className='text-xs text-label-2 dark:text-dark-label-2'>C++</div>
             </div>
@@ -141,6 +201,15 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
             </div>
           </div>
 
+          {submissionStatus && (
+            <div className={`mt-2 p-2 rounded-md ${submissionStatus === "Accepted" ? "bg-green-800/30 text-green-400" :
+                submissionStatus === "Wrong Answer" ? "bg-red-800/30 text-red-400" :
+                  "bg-yellow-800/30 text-yellow-400"
+              }`}>
+              Status: {submissionStatus}
+            </div>
+          )}
+
           <div className="font-semibold my-4">
             {problem.testCases.map((testcase, index) => (
               <div key={index} className="mb-6">
@@ -154,11 +223,14 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
                   {testcase.output}
                 </div>
 
-                {outputs.length > index && (
+                {output.length > index && (
                   <>
                     <p className="text-sm font-medium mt-4 text-white">Your Output {index + 1}:</p>
-                    <div className="w-full rounded-lg border px-3 py-[10px] mt-2 bg-dark-fill-3 border-transparent text-white">
-                      {outputs[index]}
+                    <div className={`w-full rounded-lg border px-3 py-[10px] mt-2 bg-dark-fill-3 border-transparent text-white ${output[index].trim() === testcase.output.trim()
+                        ? "border-green-500"
+                        : "border-red-500"
+                      }`}>
+                      {output[index]}
                     </div>
                   </>
                 )}
@@ -166,7 +238,9 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
             ))}
 
             {error && (
-              <div className="text-red-500 text-sm">Error: {error}</div>
+              <div className="text-red-500 text-sm p-2 bg-red-900/20 rounded-md mt-2">
+                Error: {error}
+              </div>
             )}
           </div>
         </div>

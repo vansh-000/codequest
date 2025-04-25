@@ -4,7 +4,7 @@ import { CheckCircle, Loader2, Award, ArrowUpDown, UserX, RefreshCw } from "luci
 
 interface Student {
   _id: string;
-  name: string;
+  username: string;
   totalScore: number;
 }
 
@@ -18,9 +18,10 @@ export default function Results() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/user/scores`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/scores`);
       if (!res.ok) throw new Error("Failed to fetch students");
       const { data }: { data: Student[] } = await res.json();
+      console.log(data);
       setStudents(data);
     } catch (err) {
       console.error("Error fetching students:", err);
@@ -210,10 +211,10 @@ export default function Results() {
                       </td>
                       <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
                         <Link
-                          href={`/student/${student._id}`}
+                          href={`/admin/submissions/${student._id}`}
                           className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                         >
-                          {student.name}
+                          {student.username}
                         </Link>
                       </td>
                       <td className="px-6 py-4">
