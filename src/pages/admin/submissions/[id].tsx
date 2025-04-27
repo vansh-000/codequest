@@ -1,11 +1,13 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Award, CheckCircle, Loader2, GraduationCap, Book, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Award, CheckCircle, Loader2, GraduationCap, Book, AlertTriangle, Code } from "lucide-react";
 import Link from "next/link";
 
 interface QuestionResult {
   questionTitle: string;
   marks: number;
+  submittedCode: string;
+  questionId: string;
 }
 
 interface StudentDetail {
@@ -20,6 +22,7 @@ export default function StudentDetailPage() {
   const [student, setStudent] = useState<StudentDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!id) return;
@@ -28,6 +31,7 @@ export default function StudentDetailPage() {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/user/${id}/problem-scores`);
         if (!res.ok) throw new Error("Failed to fetch student data");
         const data = await res.json();
+        console.log(data)
         setStudent(data);
       } catch (err) {
         console.error("Failed to fetch student detail:", err);
@@ -38,6 +42,18 @@ export default function StudentDetailPage() {
     };
     fetchStudentDetails();
   }, [id]);
+
+  const toggleQuestionExpansion = (questionId: string) => {
+    setExpandedQuestions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(questionId)) {
+        newSet.delete(questionId);
+      } else {
+        newSet.add(questionId);
+      }
+      return newSet;
+    });
+  };
 
   const getScoreColor = (score: number, maxScore = 100) => {
     const percentage = (score / maxScore) * 100;
@@ -91,7 +107,7 @@ export default function StudentDetailPage() {
     );
   }
 
-  // Calculate stats
+  console.log('Student::',student)
   const passedQuestions = student.questionResults.filter(q => q.marks > 0).length;
   const averageMark = student.questionResults.length > 0
     ? student.questionResults.reduce((sum, q) => sum + q.marks, 0) / student.questionResults.length
@@ -171,50 +187,57 @@ export default function StudentDetailPage() {
               </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-700/20 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div className="bg-gray-50 dark:bg-gray-700/20 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 mb-6">
               <div className="p-4 bg-gray-100 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-                  Question Performance
+                  Question Performance and Submissions
                 </h2>
               </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-sm text-left">
-                  <thead className="text-xs text-gray-700 uppercase dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50">
-                    <tr>
-                      <th scope="col" className="px-6 py-3 w-16">#</th>
-                      <th scope="col" className="px-6 py-3">Question</th>
-                      <th scope="col" className="px-6 py-3 w-24">Score</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {student.questionResults.map((q, index) => (
-                      <tr
-                        key={index}
-                        className={`${index % 2 === 1 ? "bg-gray-50 dark:bg-gray-700/20" : ""
-                          } hover:bg-gray-100 dark:hover:bg-gray-700/40 transition-colors`}
-                      >
-                        <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-200">
-                          {index + 1}
-                        </td>
-                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                          {q.questionTitle}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getScoreBackgroundColor(q.marks)} ${getScoreColor(q.marks)}`}>
-                            {q.marks} pts
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                {student.questionResults.length === 0 ? (
+                  <div className="p-8 text-center">
+                    <p className="text-gray-500 dark:text-gray-400">No question results available</p>
+                  </div>
+                ) : (
+                  student.questionResults.map((q, index) => (
+                    <div 
+                      key={q.questionId || index}
+                      className={`${index % 2 === 1 ? "bg-gray-50 dark:bg-gray-700/20" : ""} hover:bg-gray-100 dark:hover:bg-gray-700/40 transition-colors`}
+                    >
+                      <div className="p-4">
+                        <div className="flex flex-wrap justify-between items-center cursor-pointer" 
+                             onClick={() => toggleQuestionExpansion(q.questionId || index.toString())}>
+                          <div className="flex items-center space-x-4">
+                            <div className="w-8 h-8 flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/50 rounded-full">
+                              <span className="text-indigo-600 dark:text-indigo-400 font-medium">{index + 1}</span>
+                            </div>
+                            <h3 className="text-gray-800 dark:text-gray-200 font-medium">{q.questionTitle}</h3>
+                          </div>
+                          <div className="flex items-center space-x-4">
+                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getScoreBackgroundColor(q.marks)} ${getScoreColor(q.marks)}`}>
+                              {q.marks} pts
+                            </span>
+                            <button className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300">
+                              <Code className="h-5 w-5" />
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {expandedQuestions.has(q.questionId || index.toString()) && (
+                          <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Submitted Code
+                            </h4>
+                            <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto font-mono text-sm">
+                              <pre>{q.submittedCode || "No code submission available"}</pre>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
-
-              {student.questionResults.length === 0 && (
-                <div className="p-8 text-center">
-                  <p className="text-gray-500 dark:text-gray-400">No question results available</p>
-                </div>
-              )}
             </div>
           </div>
         </div>
