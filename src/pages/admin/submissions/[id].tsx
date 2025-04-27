@@ -6,13 +6,18 @@ import Link from "next/link";
 interface Submission {
   _id: string;
   code: string;
-  problem: string;
+  problem: Problem;
   score: number;
   status: string;
   language: string;
   createdAt: string;
   submittedAt: string;
   updatedAt: string;
+}
+
+interface Problem {
+  title: string,
+  _id: string,
 }
 
 interface StudentDetail {
@@ -44,27 +49,26 @@ export default function StudentDetailPage() {
       setLoading(true);
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/user/${id}/problem-scores`);
       if (!res.ok) throw new Error("Failed to fetch student data");
-      const {username,submissions} = await res.json();
-      
-      // For demo, we'll create a mock student object with the submissions data
+      const { username, submissions } = await res.json();
       const totalScore = submissions.reduce((sum: number, sub: Submission) => sum + sub.score, 0);
-      
-      // Generate placeholder problem titles (in a real app, you'd fetch these)
-      const mockTitles: Record<string, string> = {};
-      submissions.forEach((sub: Submission, index: number) => {
-        if (!mockTitles[sub.problem]) {
-          // This is just for mock - real app would fetch actual problem titles
-          if (sub.problem === "680e3a82981717af1fe0cdb6") {
-            mockTitles[sub.problem] = "Activity Selection";
-          } else if (sub.problem === "680e3bf4981717af1fe0cdd3") {
-            mockTitles[sub.problem] = "Two Sum";
-          } else {
-            mockTitles[sub.problem] = `Problem ${index + 1}`;
-          }
-        }
-      });
 
-      setProblemTitles(mockTitles);
+      // // Generate placeholder problem titles (in a real app, you'd fetch these)
+      // const mockTitles: Record<string, string> = {};
+      // submissions.forEach((sub: Submission, index: number) => {
+      //   if (!mockTitles[sub.problem]) {
+      //     // This is just for mock - real app would fetch actual problem titles
+      //     if (sub.problem === "680e3a82981717af1fe0cdb6") {
+      //       mockTitles[sub.problem] = "Activity Selection";
+      //     } else if (sub.problem === "680e3bf4981717af1fe0cdd3") {
+      //       mockTitles[sub.problem] = "Two Sum";
+      //     } else {
+      //       mockTitles[sub.problem] = `Problem ${index + 1}`;
+      //     }
+      //   }
+      // });
+
+      // setProblemTitles(mockTitles);
+
       setStudent({
         name: username,
         totalScore,
@@ -96,7 +100,7 @@ export default function StudentDetailPage() {
 
   const saveScoreEdit = async () => {
     if (!editingScore) return;
-    
+
     setActionLoading(editingScore.id);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/${editingScore.id}/score`, {
@@ -108,22 +112,22 @@ export default function StudentDetailPage() {
       });
 
       if (!res.ok) throw new Error("Failed to update score");
-      
+
       // Update local state
       if (student) {
-        const updatedSubmissions = student.submissions.map(s => 
+        const updatedSubmissions = student.submissions.map(s =>
           s._id === editingScore.id ? { ...s, score: editingScore.newScore } : s
         );
-        
+
         const newTotalScore = updatedSubmissions.reduce((sum, s) => sum + s.score, 0);
-        
+
         setStudent({
           ...student,
           submissions: updatedSubmissions,
           totalScore: newTotalScore
         });
       }
-      
+
       setActionFeedback({ type: 'success', message: 'Score updated successfully' });
       setTimeout(() => setActionFeedback(null), 3000);
     } catch (err) {
@@ -144,7 +148,7 @@ export default function StudentDetailPage() {
     if (!confirm("Are you sure you want to delete this submission? This action cannot be undone.")) {
       return;
     }
-    
+
     setActionLoading(submissionId);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/${submissionId}`, {
@@ -152,19 +156,19 @@ export default function StudentDetailPage() {
       });
 
       if (!res.ok) throw new Error("Failed to delete submission");
-      
+
       // Update local state
       if (student) {
         const updatedSubmissions = student.submissions.filter(s => s._id !== submissionId);
         const newTotalScore = updatedSubmissions.reduce((sum, s) => sum + s.score, 0);
-        
+
         setStudent({
           ...student,
           submissions: updatedSubmissions,
           totalScore: newTotalScore
         });
       }
-      
+
       setActionFeedback({ type: 'success', message: 'Submission deleted successfully' });
       setTimeout(() => setActionFeedback(null), 3000);
     } catch (err) {
@@ -230,7 +234,7 @@ export default function StudentDetailPage() {
             </p>
             <button
               onClick={() => router.push("/admin/results")}
-               className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
+              className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Results
@@ -251,13 +255,13 @@ export default function StudentDetailPage() {
     <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-16">
         <div className="mb-6">
-        <button
-              onClick={() => router.push("/admin/results")}
-               className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Results
-            </button>
+          <button
+            onClick={() => router.push("/admin/results")}
+            className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Results
+          </button>
         </div>
 
         {actionFeedback && (
@@ -340,14 +344,14 @@ export default function StudentDetailPage() {
                   </div>
                 ) : (
                   student.submissions.map((submission, index) => (
-                    <div 
+                    <div
                       key={submission._id || index}
                       className={`${index % 2 === 1 ? "bg-gray-50 dark:bg-gray-700/20" : ""} hover:bg-gray-100 dark:hover:bg-gray-700/40 transition-colors`}
                     >
                       <div className="p-4">
                         <div className="flex flex-wrap justify-between items-center">
-                          <div 
-                            className="flex items-center space-x-4 cursor-pointer flex-1" 
+                          <div
+                            className="flex items-center space-x-4 cursor-pointer flex-1"
                             onClick={() => toggleQuestionExpansion(submission._id || index.toString())}
                           >
                             <div className="w-8 h-8 flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/50 rounded-full">
@@ -355,7 +359,7 @@ export default function StudentDetailPage() {
                             </div>
                             <div>
                               <h3 className="text-gray-800 dark:text-gray-200 font-medium">
-                                {problemTitles[submission.problem] || `Problem ${index + 1}`}
+                                {submission.problem.title}
                               </h3>
                               <div className="flex mt-1 space-x-2">
                                 <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadgeColor(submission.status)}`}>
@@ -367,22 +371,21 @@ export default function StudentDetailPage() {
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="flex items-center space-x-3">
                             {editingScore && editingScore.id === submission._id ? (
                               <>
                                 <input
                                   type="number"
                                   min="0"
-                                  max="10"
                                   value={editingScore.newScore}
-                                  onChange={(e) => setEditingScore({ 
-                                    ...editingScore, 
-                                    newScore: Math.min(10, Math.max(0, Number(e.target.value))) 
+                                  onChange={(e) => setEditingScore({
+                                    ...editingScore,
+                                    newScore: parseInt(e.target.value)
                                   })}
                                   className="w-16 px-2 py-1 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                 />
-                                <button 
+                                <button
                                   onClick={saveScoreEdit}
                                   disabled={actionLoading === submission._id}
                                   className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 disabled:opacity-50"
@@ -393,7 +396,7 @@ export default function StudentDetailPage() {
                                     <Save className="h-5 w-5" />
                                   )}
                                 </button>
-                                <button 
+                                <button
                                   onClick={cancelScoreEdit}
                                   className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300"
                                 >
@@ -405,13 +408,13 @@ export default function StudentDetailPage() {
                                 <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getScoreBackgroundColor(submission.score)} ${getScoreColor(submission.score)}`}>
                                   {submission.score} pts
                                 </span>
-                                <button 
+                                <button
                                   onClick={() => handleScoreEdit(submission._id, submission.score)}
                                   className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                                 >
                                   <Edit className="h-4 w-4" />
                                 </button>
-                                <button 
+                                <button
                                   onClick={() => handleDelete(submission._id)}
                                   disabled={actionLoading === submission._id}
                                   className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 disabled:opacity-50"
@@ -422,7 +425,7 @@ export default function StudentDetailPage() {
                                     <Trash2 className="h-4 w-4" />
                                   )}
                                 </button>
-                                <button 
+                                <button
                                   className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
                                   onClick={() => toggleQuestionExpansion(submission._id || index.toString())}
                                 >
@@ -432,7 +435,7 @@ export default function StudentDetailPage() {
                             )}
                           </div>
                         </div>
-                        
+
                         {expandedQuestions.has(submission._id || index.toString()) && (
                           <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
                             <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
