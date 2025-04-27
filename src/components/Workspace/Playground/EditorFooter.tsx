@@ -5,9 +5,10 @@ type EditorFooterProps = {
 	onRun: () => void;
 	onSubmit: () => void;
 	loading: boolean;
+	alreadySubmitted: boolean;
 };
 
-const EditorFooter: React.FC<EditorFooterProps> = ({ onRun, onSubmit, loading }) => {
+const EditorFooter: React.FC<EditorFooterProps> = ({ onRun, onSubmit, loading, alreadySubmitted }) => {
 	return (
 		<div className="flex bg-dark-layer-1 absolute bottom-0 z-10 w-full">
 			<div className="mx-5 my-[10px] flex justify-between w-full">
@@ -21,19 +22,16 @@ const EditorFooter: React.FC<EditorFooterProps> = ({ onRun, onSubmit, loading })
 				</div>
 				<div className="ml-auto flex items-center space-x-4">
 					<button
-						onClick={onRun}
-						disabled={loading}
-						className="px-3 py-1.5 text-sm font-medium items-center whitespace-nowrap transition-all focus:outline-none inline-flex bg-dark-fill-3 hover:bg-dark-fill-2 text-dark-label-2 rounded-lg disabled:opacity-50"
-					>
-						{loading ? "Running..." : "Run"}
-					</button>
-					<button
+						className={`px-3 py-1.5 font-medium items-center transition-all focus:outline-none inline-flex text-sm text-white ${alreadySubmitted
+								? "bg-green-600 hover:bg-green-700 cursor-default"
+								: "bg-dark-green-s hover:bg-green-3 active:bg-green-3"
+							} rounded-lg`}
 						onClick={onSubmit}
-						disabled={loading}
-						className="px-3 py-1.5 font-medium items-center transition-all focus:outline-none inline-flex text-sm text-white bg-dark-green-s hover:bg-green-3 rounded-lg disabled:opacity-50"
+						disabled={loading || alreadySubmitted}
 					>
-						{loading ? "Submitting..." : "Submit"}
+						{alreadySubmitted ? "Submitted" : (loading ? "Submitting..." : "Submit")}
 					</button>
+
 				</div>
 			</div>
 		</div>

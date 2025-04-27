@@ -10,11 +10,13 @@ import { AiOutlineFullscreen } from "react-icons/ai";
 
 type PlaygroundProps = {
   problem: Problem;
+  existingSubmission: any | null;
+  alreadySubmitted: boolean;
 };
 
 type SubmissionStatus = "Accepted" | "Wrong Answer" | "Compilation Error";
 
-const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
+const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, alreadySubmitted }) => {
   const [code, setCode] = useState(problem.starterCode);
   const [output, setoutput] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -22,16 +24,34 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
-  // get user from localhost
-  const userString = localStorage.getItem("user") || null;
-  const user = JSON.parse(userString);
-  const userId = user._id;
+  
+  // get user from localStorage
+  const getUserId = () => {
+    try {
+      const userString = localStorage.getItem("user");
+      if (!userString) return null;
+      
+      const user = JSON.parse(userString);
+      return user._id;
+    } catch (err) {
+      console.error("Error parsing user from localStorage:", err);
+      return null;
+    }
+  };
 
-  console.log(userId);
+  const userId = getUserId();
+
 
   useEffect(() => {
-    setCode(problem.starterCode);
-  }, [problem]);
+    console.log("existingSubmission :: ",existingSubmission)
+    if (existingSubmission && existingSubmission.code) {
+      console.log("Existing submission found:", existingSubmission);
+      setCode(existingSubmission.code);
+      setSubmissionStatus(existingSubmission.status);
+    } else {
+      setCode(problem.starterCode);
+    }
+  }, [problem, existingSubmission]);
 
   const handleRun = async () => {
     setLoading(true);
@@ -49,6 +69,10 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
   };
 
   const createSubmission = async (status: SubmissionStatus, resultScore: number = 0) => {
+    if (!userId) {
+      setError("You must be logged in to submit solutions.");
+      return null;
+    }
     try {
       const submissionData = {
         code: code,
@@ -56,8 +80,6 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
         status: status,
         score: resultScore
       };
-
-      console.log(submissionData);
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/user/${userId}/problem/${problem._id}`,
@@ -73,22 +95,6 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
     }
   };
 
-  const validateResults = (output: string[]): { isCorrect: boolean; score: number } => {
-    let correctCount = 0;
-    const totalTestCases = problem.testCases.length;
-    for (let i = 0; i < Math.min(totalTestCases, output.length); i++) {
-      if (output[i].trim() === problem.testCases[i].output.trim()) {
-        correctCount++;
-      }
-    }
-    const score = correctCount * 10;
-
-    return {
-      isCorrect: correctCount === totalTestCases,
-      score
-    };
-  };
-
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
@@ -99,15 +105,11 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
         code: code + problem.helperCode
       });
 
-      console.log(res.data)
-
       if (res.data.error) {
         setError(res.data.errors);
         await createSubmission("Wrong Answer", 0);
         setSubmissionStatus("Wrong Answer");
       } else if (res.data.output) {
-        console.log("Accepted :: ")
-        console.log(res.data.output)
         setoutput(res.data.output);
         await createSubmission("Accepted", 10);
         setSubmissionStatus("Accepted");
@@ -250,6 +252,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
         onRun={handleRun}
         onSubmit={handleSubmit}
         loading={loading}
+        alreadySubmitted={alreadySubmitted}
       />
     </div>
   );

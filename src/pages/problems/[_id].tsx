@@ -4,6 +4,18 @@ import useHasMounted from "@/hooks/useHasMounted";
 import { Problem } from "@/utils/types/problem";
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
+import axios from "axios";
+
+type SubmissionStatus = "Accepted" | "Wrong Answer" | "Compilation Error";
+
+interface Submission {
+  _id: string;
+  status: SubmissionStatus;
+  score: number;
+  code: string;
+  language: string;
+  createdAt: string;
+}
 
 const ProblemPage: React.FC = () => {
   const hasMounted = useHasMounted();
@@ -15,7 +27,25 @@ const ProblemPage: React.FC = () => {
   const [error, setError] = useState("");
   const [problemIds, setProblemIds] = useState<string[]>([]);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const editorRef = useRef<HTMLDivElement>(null);
+  const [alreadySubmitted, setAlreadySubmitted] = useState(false);
+  const editorRef = useRef<HTMLDivElement>(null); 
+  const [existingSubmission, setExistingSubmission] = useState<Submission | null>(null);
+
+  // Get user from localStorage
+  const getUserId = () => {
+    try {
+      const userString = localStorage.getItem("user");
+      if (!userString) return null;
+      
+      const user = JSON.parse(userString);
+      return user._id;
+    } catch (err) {
+      console.error("Error parsing user from localStorage:", err);
+      return null;
+    }
+  };
+
+  const userId = getUserId();
 
   // Fetch all problem IDs
   useEffect(() => {
@@ -65,6 +95,34 @@ const ProblemPage: React.FC = () => {
     fetchProblem();
   }, [_id]);
 
+  useEffect(() => {
+    console.log("Problem:", problem);
+    console.log("User", userId);
+    if (!problem || !userId) return;
+    
+    const checkExistingSubmission = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/user/${userId}/problem/${problem._id}`
+        );
+        console.log(response);
+        
+        if (response.data && response.data.submission) {
+          setAlreadySubmitted(true);
+          setExistingSubmission(response.data.submission);
+        } else {
+          setAlreadySubmitted(false);
+          setExistingSubmission(null);
+        }
+      } catch (err) {
+        console.error("No submission found or error occurred:", err);
+        setExistingSubmission(null);
+      }
+    };
+
+    checkExistingSubmission();
+  }, [problem, userId]);
+
   const enterFullscreen = async () => {
     try {
       if (editorRef.current && editorRef.current.requestFullscreen) {
@@ -84,20 +142,35 @@ const ProblemPage: React.FC = () => {
   return (
     <div ref={editorRef} className="min-h-screen bg-black text-white">
       {!isFullscreen && (
-        <div className="flex items-center justify-center h-screen bg-black z-50">
+        <div className="flex flex-col items-center justify-center h-screen bg-black z-50">
           <button
             onClick={enterFullscreen}
             className="px-6 py-3 text-lg font-semibold bg-blue-600 rounded hover:bg-blue-700 transition"
           >
             Start Problem (Fullscreen)
           </button>
+          {/* {existingSubmission && (
+            <div className={`mt-4 p-3 rounded-md max-w-md text-center ${
+              existingSubmission.status === "Accepted" ? "bg-green-800/30 text-green-400" :
+              existingSubmission.status === "Wrong Answer" ? "bg-red-800/30 text-red-400" :
+              "bg-yellow-800/30 text-yellow-400"
+            }`}>
+              You have previously submitted this problem.<br />
+              Status: {existingSubmission.status}<br />
+              Score: {existingSubmission.score}
+            </div>
+          )} */}
         </div>
       )}
 
       {isFullscreen && (
         <>
           <Topbar problemPage problemId={_id as string} problemIds={problemIds} />
-          <Workspace problem={problem} />
+          <Workspace 
+            problem={problem} 
+            existingSubmission={existingSubmission}
+            alreadySubmitted={alreadySubmitted}
+          />
         </>
       )}
     </div>

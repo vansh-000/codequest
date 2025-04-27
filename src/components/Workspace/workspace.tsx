@@ -1,26 +1,22 @@
-import { useState } from "react";
+import React from "react";
 import Split from "react-split";
 import ProblemDescription from "./ProblemDescription/ProblemDescription";
 import Playground from "./Playground/Playground";
-import Confetti from "react-confetti";
-import useWindowSize from "@/hooks/useWindowSize";
 import { Problem } from "@/utils/types/problem";
 
 type WorkspaceProps = {
 	problem: Problem;
+	existingSubmission: any | null;
+	alreadySubmitted:boolean
 };
 
-const Workspace: React.FC<WorkspaceProps> = ({ problem }) => {
-	const { width, height } = useWindowSize();
-	const [success, setSuccess] = useState(false);
-	const [solved, setSolved] = useState(false);
+const Workspace: React.FC<WorkspaceProps> = ({ problem, existingSubmission, alreadySubmitted }) => {
 	return (
-		<Split className='split' minSize={0}>
+		<Split className="split" minSize={0}>
 			<ProblemDescription problem={problem} />
-			<div className='bg-dark-fill-2'>
-				<Playground problem={problem} />
-			</div>
+			<Playground problem={problem} existingSubmission={existingSubmission} alreadySubmitted={alreadySubmitted} />
 		</Split>
 	);
 };
+
 export default Workspace;
