@@ -12,23 +12,9 @@ const Logout: React.FC = () => {
   const handleLogout = async () => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/logout`,
-        {
-          method: "POST",
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Logout failed!");
-      }
-
-      // remove user from the store
       setAuthModalState((prev) => ({ ...prev, user: null }));
-
-      toast.success(data.message);
+      localStorage.removeItem("user");
+      toast.success("Logged out successfully!");
       router.push("/auth");
     } catch (error: any) {
       toast.error(error.message);

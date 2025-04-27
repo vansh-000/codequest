@@ -7,7 +7,6 @@ import Topbar from "@/components/Topbar/topbar";
 import useHasMounted from "@/hooks/useHasMounted";
 import { AlertTriangle, BookOpen, Check } from "lucide-react";
 import { useState } from "react";
-
 export default function Home() {
   const [loadingProblems, setLoadingProblems] = useState(true);
   const hasMounted = useHasMounted();
@@ -26,6 +25,7 @@ export default function Home() {
 
         if (parsedUser) {
           setAuthState((prev) => ({ ...prev, user: parsedUser }));
+
           if (parsedUser.role === "admin") {
             router.push("/admin");
           }
@@ -39,11 +39,14 @@ export default function Home() {
         setAuthState((prev) => ({ ...prev, isOpen: true, type: "login" }));
         router.push("/auth");
       }
+    } else {
+      // No user in localStorage
+      setAuthState((prev) => ({ ...prev, isOpen: true, type: "login" }));
+      router.push("/auth");
     }
   }, [router, setAuthState]);
 
-
-  if (!hasMounted || !authState.user) return null;
+  if (!hasMounted) return null;
 
   return (
     <>
