@@ -24,13 +24,13 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
-  
+
   // get user from localStorage
   const getUserId = () => {
     try {
       const userString = localStorage.getItem("user");
       if (!userString) return null;
-      
+
       const user = JSON.parse(userString);
       return user._id;
     } catch (err) {
@@ -43,7 +43,6 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
 
 
   useEffect(() => {
-    console.log("existingSubmission :: ",existingSubmission)
     if (existingSubmission && existingSubmission.code) {
       console.log("Existing submission found:", existingSubmission);
       setCode(existingSubmission.code);
@@ -108,10 +107,14 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
       if (res.data.error) {
         setError(res.data.errors);
         await createSubmission("Wrong Answer", 0);
+        // set already submitted to true
+        alreadySubmitted = true;
         setSubmissionStatus("Wrong Answer");
       } else if (res.data.output) {
         setoutput(res.data.output);
         await createSubmission("Accepted", 10);
+        // set already submitted to true
+        alreadySubmitted = true;
         setSubmissionStatus("Accepted");
       }
     } catch (err: any) {
@@ -139,7 +142,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     const handleFullscreenChange = () => {
       const fullscreen = Boolean(document.fullscreenElement);
       setIsFullscreen(fullscreen);
-      if (!fullscreen) {
+      if (!fullscreen && !alreadySubmitted) {
         handleSubmit();
       }
     };
@@ -205,8 +208,8 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
 
           {submissionStatus && (
             <div className={`mt-2 p-2 rounded-md ${submissionStatus === "Accepted" ? "bg-green-800/30 text-green-400" :
-                submissionStatus === "Wrong Answer" ? "bg-red-800/30 text-red-400" :
-                  "bg-yellow-800/30 text-yellow-400"
+              submissionStatus === "Wrong Answer" ? "bg-red-800/30 text-red-400" :
+                "bg-yellow-800/30 text-yellow-400"
               }`}>
               Status: {submissionStatus}
             </div>
@@ -229,8 +232,8 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
                   <>
                     <p className="text-sm font-medium mt-4 text-white">Your Output {index + 1}:</p>
                     <div className={`w-full rounded-lg border px-3 py-[10px] mt-2 bg-dark-fill-3 border-transparent text-white ${output[index].trim() === testcase.output.trim()
-                        ? "border-green-500"
-                        : "border-red-500"
+                      ? "border-green-500"
+                      : "border-red-500"
                       }`}>
                       {output[index]}
                     </div>

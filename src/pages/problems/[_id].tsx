@@ -31,7 +31,6 @@ const ProblemPage: React.FC = () => {
   const editorRef = useRef<HTMLDivElement>(null); 
   const [existingSubmission, setExistingSubmission] = useState<Submission | null>(null);
 
-  // Get user from localStorage
   const getUserId = () => {
     try {
       const userString = localStorage.getItem("user");
@@ -96,8 +95,8 @@ const ProblemPage: React.FC = () => {
   }, [_id]);
 
   useEffect(() => {
-    console.log("Problem:", problem);
-    console.log("User", userId);
+    // console.log("Problem:", problem);
+    // console.log("User", userId);
     if (!problem || !userId) return;
     
     const checkExistingSubmission = async () => {
@@ -105,7 +104,7 @@ const ProblemPage: React.FC = () => {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/user/${userId}/problem/${problem._id}`
         );
-        console.log(response);
+        // console.log(response);
         
         if (response.data && response.data.submission) {
           setAlreadySubmitted(true);
@@ -149,17 +148,6 @@ const ProblemPage: React.FC = () => {
           >
             Start Problem (Fullscreen)
           </button>
-          {/* {existingSubmission && (
-            <div className={`mt-4 p-3 rounded-md max-w-md text-center ${
-              existingSubmission.status === "Accepted" ? "bg-green-800/30 text-green-400" :
-              existingSubmission.status === "Wrong Answer" ? "bg-red-800/30 text-red-400" :
-              "bg-yellow-800/30 text-yellow-400"
-            }`}>
-              You have previously submitted this problem.<br />
-              Status: {existingSubmission.status}<br />
-              Score: {existingSubmission.score}
-            </div>
-          )} */}
         </div>
       )}
 
