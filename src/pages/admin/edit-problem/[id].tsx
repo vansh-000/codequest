@@ -24,7 +24,6 @@ interface ProblemFormData {
   likes?: number;
   dislikes?: number;
   order: number;
-  videoId: string;
 }
 
 const EditProblemPage: React.FC = () => {
@@ -100,7 +99,6 @@ const EditProblemPage: React.FC = () => {
       setValue("starterCode", problem.starterCode);
       setValue("helperCode", problem.helperCode);
       setValue("order", problem.order);
-      setValue("videoId", problem.videoId);
       setValue("likes", problem.likes || 0);
       setValue("dislikes", problem.dislikes || 0);
 

@@ -24,7 +24,6 @@ interface ProblemFormData {
   likes?: number;
   dislikes?: number;
   order: number;
-  videoId: string;
 }
 
 const AddProblemPage: React.FC = () => {
@@ -320,16 +319,6 @@ const AddProblemPage: React.FC = () => {
                       className="w-full p-3 border border-gray-700 bg-gray-700/50 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white"
                     />
                     {errors.order && <p className="mt-1 text-sm text-red-400">{errors.order.message}</p>}
-                  </div>
-
-                  <div className="space-y-2 md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-400">Video Tutorial ID</label>
-                    <input
-                      {...register("videoId", { required: "Video ID is required" })}
-                      placeholder="YouTube video ID"
-                      className="w-full p-3 border border-gray-700 bg-gray-700/50 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white"
-                    />
-                    {errors.videoId && <p className="mt-1 text-sm text-red-400">{errors.videoId.message}</p>}
                   </div>
                 </div>
               </div>
