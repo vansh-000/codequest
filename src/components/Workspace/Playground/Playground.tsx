@@ -52,6 +52,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus | null>(null);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(alreadySubmitted);
   const editorRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -61,11 +62,11 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     if (!problem.codes || !Array.isArray(problem.codes)) {
       return LANGUAGE_CONFIG[lang].starter("");
     }
-    
-    const codeObj = problem.codes.find(c => 
+
+    const codeObj = problem.codes.find(c =>
       c.language.toLowerCase() === LANGUAGE_CONFIG[lang].name.toLowerCase()
     );
-    
+
     return codeObj?.starterCode || LANGUAGE_CONFIG[lang].starter("");
   };
 
@@ -74,11 +75,11 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     if (!problem.codes || !Array.isArray(problem.codes)) {
       return "";
     }
-    
-    const codeObj = problem.codes.find(c => 
+
+    const codeObj = problem.codes.find(c =>
       c.language.toLowerCase() === LANGUAGE_CONFIG[lang].name.toLowerCase()
     );
-    
+
     return codeObj?.helperCode || "";
   };
 
@@ -99,6 +100,9 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
   const userId = getUserId();
 
   useEffect(() => {
+    // Update local submission state based on prop
+    setIsSubmitted(alreadySubmitted);
+
     if (existingSubmission && existingSubmission.code) {
       console.log("Existing submission found:", existingSubmission);
       setCode(existingSubmission.code);
@@ -107,7 +111,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     } else {
       setCode(getStarterCode(language));
     }
-  }, [language, problem, existingSubmission]);
+  }, [language, problem, existingSubmission, alreadySubmitted]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -174,10 +178,16 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
   };
 
   const handleSubmit = async () => {
+    // Prevent multiple submissions
+    if (isSubmitted) {
+      setError("You have already submitted a solution for this problem.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSubmissionStatus(null);
-    console.log(problem);
+    console.log("Submitting code:", code + getHelperCode(language));
 
     try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/playground/submit`, {
@@ -188,17 +198,18 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
       if (res.data.error) {
         setError(res.data.errors);
         await createSubmission("Wrong Answer", 0);
-        alreadySubmitted = true;
+        setIsSubmitted(true);
         setSubmissionStatus("Wrong Answer");
       } else if (res.data.output) {
         setoutput(res.data.output.split('\n'));
         await createSubmission("Accepted", 10);
-        alreadySubmitted = true;
+        setIsSubmitted(true);
         setSubmissionStatus("Accepted");
       }
     } catch (err: any) {
       setError(err.response?.data?.message || err.message);
       await createSubmission("Compilation Error", 0);
+      setIsSubmitted(true);
       setSubmissionStatus("Compilation Error");
     } finally {
       setLoading(false);
@@ -221,7 +232,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     const handleFullscreenChange = () => {
       const fullscreen = Boolean(document.fullscreenElement);
       setIsFullscreen(fullscreen);
-      if (!fullscreen && !alreadySubmitted) {
+      if (!fullscreen && !isSubmitted) {
         handleSubmit();
       }
     };
@@ -239,7 +250,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isFullscreen]);
+  }, [isFullscreen, isSubmitted]);
 
   return (
     <div ref={editorRef} className="flex flex-col bg-dark-layer-1 relative overflow-x-hidden">
@@ -295,7 +306,13 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
             theme={vscodeDark}
             extensions={[LANGUAGE_CONFIG[language].extension()]}
             onChange={(value) => setCode(value)}
+            editable={!isSubmitted} // Make read-only when already submitted
           />
+          {isSubmitted && (
+            <div className="absolute top-0 left-0 right-0 bg-gray-900/60 text-white text-center py-2 z-10">
+              This solution has already been submitted and cannot be modified.
+            </div>
+          )}
         </div>
         <div className="w-full px-5 overflow-auto">
           <div className="flex h-10 items-center space-x-6">
@@ -307,8 +324,8 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
 
           {submissionStatus && (
             <div className={`mt-2 p-2 rounded-md ${submissionStatus === "Accepted" ? "bg-green-800/30 text-green-400" :
-                submissionStatus === "Wrong Answer" ? "bg-red-800/30 text-red-400" :
-                  "bg-yellow-800/30 text-yellow-400"
+              submissionStatus === "Wrong Answer" ? "bg-red-800/30 text-red-400" :
+                "bg-yellow-800/30 text-yellow-400"
               }`}>
               Status: {submissionStatus}
               {submissionStatus === "Accepted" && <span className="ml-2">✓</span>}
@@ -332,8 +349,8 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
                   <>
                     <p className="text-sm font-medium mt-4 text-white">Your Output {index + 1}:</p>
                     <div className={`w-full rounded-lg border px-3 py-[10px] mt-2 bg-dark-fill-3 border-transparent text-white ${output[index]?.trim() === testcase.output.trim()
-                        ? "border-green-500"
-                        : "border-red-500"
+                      ? "border-green-500"
+                      : "border-red-500"
                       }`}>
                       {output[index] || ""}
                     </div>
@@ -355,7 +372,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
         onRun={handleRun}
         onSubmit={handleSubmit}
         loading={loading}
-        alreadySubmitted={alreadySubmitted}
+        alreadySubmitted={isSubmitted}
       />
     </div>
   );
