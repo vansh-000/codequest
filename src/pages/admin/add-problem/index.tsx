@@ -11,6 +11,12 @@ interface TestCase {
   output: string;
 }
 
+interface CodeBlock {
+  language: string;
+  starterCode: string;
+  helperCode: string;
+}
+
 interface ProblemFormData {
   title: string;
   category: string;
@@ -19,8 +25,7 @@ interface ProblemFormData {
   examples: string[];
   constraints: string[];
   testCases: TestCase[];
-  starterCode: string;
-  helperCode: string;
+  codes: CodeBlock[];
   likes?: number;
   dislikes?: number;
   order: number;
@@ -42,6 +47,9 @@ const AddProblemPage: React.FC = () => {
   const [testCases, setTestCases] = useState<TestCase[]>([]);
   const [examples, setExamples] = useState<string[]>([]);
   const [newExample, setNewExample] = useState<string>("");
+  const [codeBlocks, setCodeBlocks] = useState<CodeBlock[]>([
+    { language: "javascript", starterCode: "", helperCode: "" }
+  ]);
   const [activeTab, setActiveTab] = useState<string>("basic");
   const router = useRouter();
 
@@ -77,7 +85,7 @@ const AddProblemPage: React.FC = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
           },
           body: JSON.stringify({
             ...data,
@@ -87,6 +95,7 @@ const AddProblemPage: React.FC = () => {
               input: tc.input.trim(),
               output: tc.output.trim(),
             })),
+            codes: codeBlocks,
             likes: data.likes || 0,
             dislikes: data.dislikes || 0,
           }),
@@ -102,6 +111,7 @@ const AddProblemPage: React.FC = () => {
         setConstraints([]);
         setExamples([]);
         setTestCases([]);
+        setCodeBlocks([{ language: "javascript", starterCode: "", helperCode: "" }]);
       } else {
         setMessage({ type: "error", text: result.error || "Error adding problem" });
       }
@@ -153,6 +163,24 @@ const AddProblemPage: React.FC = () => {
     );
   };
 
+  const addCodeBlock = () => {
+    setCodeBlocks([...codeBlocks, { language: "", starterCode: "", helperCode: "" }]);
+  };
+
+  const removeCodeBlock = (index: number) => {
+    setCodeBlocks((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateCodeBlock = (
+    index: number,
+    field: keyof CodeBlock,
+    value: string
+  ) => {
+    setCodeBlocks((prev) =>
+      prev.map((code, i) => (i === index ? { ...code, [field]: value } : code))
+    );
+  };
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "Easy":
@@ -165,6 +193,13 @@ const AddProblemPage: React.FC = () => {
         return "text-gray-400 border-gray-400";
     }
   };
+
+  const languageOptions = [
+    { value: "python", label: "Python" },
+    { value: "java", label: "Java" },
+    { value: "cpp", label: "C++" },
+    { value: "c", label: "C" },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
@@ -194,8 +229,8 @@ const AddProblemPage: React.FC = () => {
           {message && (
             <div
               className={`p-4 ${message.type === "success"
-                  ? "bg-green-500/20 border-l-4 border-green-500"
-                  : "bg-red-500/20 border-l-4 border-red-500"
+                ? "bg-green-500/20 border-l-4 border-green-500"
+                : "bg-red-500/20 border-l-4 border-red-500"
                 } text-white mx-6 mt-6 rounded-lg flex items-center`}
             >
               {message.type === "success" ? (
@@ -212,8 +247,8 @@ const AddProblemPage: React.FC = () => {
             <button
               type="button"
               className={`py-3 px-6 ${activeTab === "basic"
-                  ? "border-b-2 border-indigo-500 font-semibold text-white"
-                  : "text-gray-400"
+                ? "border-b-2 border-indigo-500 font-semibold text-white"
+                : "text-gray-400"
                 }`}
               onClick={() => setActiveTab("basic")}
             >
@@ -225,8 +260,8 @@ const AddProblemPage: React.FC = () => {
             <button
               type="button"
               className={`py-3 px-6 ${activeTab === "content"
-                  ? "border-b-2 border-indigo-500 font-semibold text-white"
-                  : "text-gray-400"
+                ? "border-b-2 border-indigo-500 font-semibold text-white"
+                : "text-gray-400"
                 }`}
               onClick={() => setActiveTab("content")}
             >
@@ -238,8 +273,8 @@ const AddProblemPage: React.FC = () => {
             <button
               type="button"
               className={`py-3 px-6 ${activeTab === "code"
-                  ? "border-b-2 border-indigo-500 font-semibold text-white"
-                  : "text-gray-400"
+                ? "border-b-2 border-indigo-500 font-semibold text-white"
+                : "text-gray-400"
                 }`}
               onClick={() => setActiveTab("code")}
             >
@@ -251,8 +286,8 @@ const AddProblemPage: React.FC = () => {
             <button
               type="button"
               className={`py-3 px-6 ${activeTab === "TestCases"
-                  ? "border-b-2 border-indigo-500 font-semibold text-white"
-                  : "text-gray-400"
+                ? "border-b-2 border-indigo-500 font-semibold text-white"
+                : "text-gray-400"
                 }`}
               onClick={() => setActiveTab("TestCases")}
             >
@@ -449,43 +484,83 @@ const AddProblemPage: React.FC = () => {
             {/* Code Tab */}
             <div className={activeTab === "code" ? "block" : "hidden"}>
               <div className="bg-gray-750 rounded-lg p-6 space-y-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <Code className="h-5 w-5 text-indigo-400" />
-                  Solution Code
-                </h3>
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Code className="h-5 w-5 text-indigo-400" />
+                    Solution Code
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={addCodeBlock}
+                    className="px-3 py-1 bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-1 text-sm"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Add Language</span>
+                  </button>
+                </div>
 
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-400">Starter Code</label>
-                    <p className="text-xs text-gray-500">Initial code provided to the user</p>
-                    <textarea
-                      {...register("starterCode", {
-                        required: "Starter code is required",
-                      })}
-                      placeholder="function solution(params) {
-  // Your code here
-}"
-                      className="w-full p-3 border border-gray-700 bg-gray-700/50 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white font-mono"
-                      rows={6}
-                    />
-                    {errors.starterCode && <p className="mt-1 text-sm text-red-400">{errors.starterCode.message}</p>}
-                  </div>
+                <div className="space-y-8">
+                  {codeBlocks.map((codeBlock, index) => (
+                    <div key={index} className="p-4 bg-gray-700/30 rounded-lg border border-gray-600">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <Code className="h-5 w-5 text-indigo-300" />
+                          <span className="font-medium text-indigo-300">Language #{index + 1}</span>
+                        </div>
+                        {codeBlocks.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeCodeBlock(index)}
+                            className="p-1 text-gray-400 hover:text-red-400 transition-colors"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
 
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-400">Helper Code</label>
-                    <p className="text-xs text-gray-500">Code that runs in the background (not visible to users)</p>
-                    <textarea
-                      {...register("helperCode", {
-                        required: "Helper code is required",
-                      })}
-                      placeholder="function runTests() {
-  // Test runner code
-}"
-                      className="w-full p-3 border border-gray-700 bg-gray-700/50 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white font-mono"
-                      rows={6}
-                    />
-                    {errors.helperCode && <p className="mt-1 text-sm text-red-400">{errors.helperCode.message}</p>}
-                  </div>
+                      <div className="grid grid-cols-1 gap-6">
+                        <div className="space-y-2">
+                          <label className="block text-sm font-medium text-gray-400">Language</label>
+                          <select
+                            value={codeBlock.language}
+                            onChange={(e) => updateCodeBlock(index, "language", e.target.value)}
+                            className="w-full p-3 border border-gray-700 bg-gray-700/50 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white"
+                          >
+                            <option value="">Select Language</option>
+                            {languageOptions.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="block text-sm font-medium text-gray-400">Starter Code</label>
+                          <p className="text-xs text-gray-500">Initial code provided to the user</p>
+                          <textarea
+                            value={codeBlock.starterCode}
+                            onChange={(e) => updateCodeBlock(index, "starterCode", e.target.value)}
+                            placeholder={`function solution(params) {\n  // Your code here\n}`}
+                            className="w-full p-3 border border-gray-700 bg-gray-700/50 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white font-mono"
+                            rows={6}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="block text-sm font-medium text-gray-400">Helper Code</label>
+                          <p className="text-xs text-gray-500">Code that runs in the background (not visible to users)</p>
+                          <textarea
+                            value={codeBlock.helperCode}
+                            onChange={(e) => updateCodeBlock(index, "helperCode", e.target.value)}
+                            placeholder={`function runTests() {\n  // Test runner code\n}`}
+                            className="w-full p-3 border border-gray-700 bg-gray-700/50 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white font-mono"
+                            rows={6}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -574,6 +649,7 @@ const AddProblemPage: React.FC = () => {
                   setConstraints([]);
                   setExamples([]);
                   setTestCases([]);
+                  setCodeBlocks([{ language: "javascript", starterCode: "", helperCode: "" }]);
                   setMessage(null);
                 }}
                 className="py-2 px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors flex items-center gap-2"

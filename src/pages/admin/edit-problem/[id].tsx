@@ -11,6 +11,12 @@ interface TestCase {
   output: string;
 }
 
+interface ProblemCode {
+  language: string;
+  starterCode: string;
+  helperCode: string;
+}
+
 interface ProblemFormData {
   title: string;
   category: string;
@@ -19,8 +25,7 @@ interface ProblemFormData {
   examples: string[];
   constraints: string[];
   testCases: TestCase[];
-  starterCode: string;
-  helperCode: string;
+  codes: ProblemCode[];
   likes?: number;
   dislikes?: number;
   order: number;
@@ -31,7 +36,6 @@ const EditProblemPage: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
     setValue,
   } = useForm<ProblemFormData>();
 
@@ -44,6 +48,8 @@ const EditProblemPage: React.FC = () => {
   const [examples, setExamples] = useState<string[]>([]);
   const [newExample, setNewExample] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("basic");
+  const [codes, setCodes] = useState<ProblemCode[]>([{ language: "javascript", starterCode: "", helperCode: "" }]);
+  const [selectedCodeIndex, setSelectedCodeIndex] = useState<number>(0);
   const router = useRouter();
   const { id } = router.query;
 
@@ -96,8 +102,6 @@ const EditProblemPage: React.FC = () => {
       setValue("category", problem.category);
       setValue("difficulty", problem.difficulty);
       setValue("description", problem.description);
-      setValue("starterCode", problem.starterCode);
-      setValue("helperCode", problem.helperCode);
       setValue("order", problem.order);
       setValue("likes", problem.likes || 0);
       setValue("dislikes", problem.dislikes || 0);
@@ -106,6 +110,18 @@ const EditProblemPage: React.FC = () => {
       setConstraints(problem.constraints || []);
       setExamples(problem.examples || []);
       setTestCases(problem.testCases || []);
+      
+      // Set code values - handle both old and new format
+      if (problem.codes && problem.codes.length > 0) {
+        setCodes(problem.codes);
+      } else if (problem.starterCode && problem.helperCode) {
+        // Handle legacy format
+        setCodes([{
+          language: "C++",
+          starterCode: problem.starterCode,
+          helperCode: problem.helperCode
+        }]);
+      }
 
     } catch (error) {
       console.error("Error fetching problem details:", error);
@@ -136,6 +152,11 @@ const EditProblemPage: React.FC = () => {
               input: tc.input,
               output: tc.output,
             })),
+            codes: codes.map(code => ({
+              language: code.language,
+              starterCode: code.starterCode,
+              helperCode: code.helperCode
+            }))
           }),
         }
       );
@@ -193,6 +214,30 @@ const EditProblemPage: React.FC = () => {
   ) => {
     setTestCases((prev) =>
       prev.map((tc, i) => (i === index ? { ...tc, [field]: value } : tc))
+    );
+  };
+
+  const addLanguage = () => {
+    setCodes([...codes, { language: "", starterCode: "", helperCode: "" }]);
+    setSelectedCodeIndex(codes.length);
+  };
+
+  const removeLanguage = (index: number) => {
+    if (codes.length <= 1) {
+      setMessage({ type: "error", text: "You must have at least one language" });
+      return;
+    }
+    setCodes((prev) => prev.filter((_, i) => i !== index));
+    if (selectedCodeIndex >= index && selectedCodeIndex > 0) {
+      setSelectedCodeIndex(selectedCodeIndex - 1);
+    }
+  };
+
+  const updateCodeValue = (field: keyof ProblemCode, value: string) => {
+    setCodes((prev) => 
+      prev.map((code, i) => 
+        i === selectedCodeIndex ? { ...code, [field]: value } : code
+      )
     );
   };
 
@@ -262,7 +307,7 @@ const EditProblemPage: React.FC = () => {
           )}
 
           {/* Tab Navigation */}
-          <div className="flex border-b border-gray-700 mt-6 px-6">
+          <div className="flex border-b border-gray-700 mt-6 px-6 overflow-x-auto">
             <button
               type="button"
               className={`py-3 px-6 ${activeTab === "basic"
@@ -312,7 +357,7 @@ const EditProblemPage: React.FC = () => {
             >
               <div className="flex items-center gap-2">
                 <Video className="h-4 w-4" />
-                <span>TestCases</span>
+                <span>Test Cases</span>
               </div>
             </button>
           </div>
@@ -503,42 +548,91 @@ const EditProblemPage: React.FC = () => {
             {/* Code Tab */}
             <div className={activeTab === "code" ? "block" : "hidden"}>
               <div className="bg-gray-750 rounded-lg p-6 space-y-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <Code className="h-5 w-5 text-indigo-400" />
-                  Solution Code
-                </h3>
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Code className="h-5 w-5 text-indigo-400" />
+                    Solution Code
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={addLanguage}
+                    className="px-3 py-1 bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-1 text-sm"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Add Language</span>
+                  </button>
+                </div>
+
+                {/* Language tabs */}
+                <div className="flex border-b border-gray-700 overflow-x-auto pb-1">
+                  {codes.map((code, index) => (
+                    <div key={index} className="flex items-center">
+                      <button
+                        type="button"
+                        className={`py-2 px-4 ${
+                          selectedCodeIndex === index
+                            ? "border-b-2 border-indigo-500 font-semibold text-white"
+                            : "text-gray-400"
+                        }`}
+                        onClick={() => setSelectedCodeIndex(index)}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Code className="h-4 w-4" />
+                          <input
+                            type="text"
+                            value={code.language}
+                            onChange={(e) => {
+                              const newCodes = [...codes];
+                              newCodes[index].language = e.target.value;
+                              setCodes(newCodes);
+                            }}
+                            placeholder="Language"
+                            className={`bg-transparent border-b ${
+                              selectedCodeIndex === index ? "border-indigo-500" : "border-gray-700"
+                            } focus:outline-none w-20`}
+                          />
+                        </div>
+                      </button>
+                      {codes.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeLanguage(index)}
+                          className="ml-1 p-1 text-gray-400 hover:text-red-400 transition-colors"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
 
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-400">Starter Code</label>
                     <p className="text-xs text-gray-500">Initial code provided to the user</p>
                     <textarea
-                      {...register("starterCode", {
-                        required: "Starter code is required",
-                      })}
+                      value={codes[selectedCodeIndex]?.starterCode || ""}
+                      onChange={(e) => updateCodeValue("starterCode", e.target.value)}
                       placeholder="function solution(params) {
   // Your code here
 }"
                       className="w-full p-3 border border-gray-700 bg-gray-700/50 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white font-mono"
                       rows={6}
                     />
-                    {errors.starterCode && <p className="mt-1 text-sm text-red-400">{errors.starterCode.message}</p>}
                   </div>
 
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-400">Helper Code</label>
                     <p className="text-xs text-gray-500">Code that runs in the background (not visible to users)</p>
                     <textarea
-                      {...register("helperCode", {
-                        required: "Helper code is required",
-                      })}
+                      value={codes[selectedCodeIndex]?.helperCode || ""}
+                      onChange={(e) => updateCodeValue("helperCode", e.target.value)}
                       placeholder="function runTests() {
   // Test runner code
 }"
                       className="w-full p-3 border border-gray-700 bg-gray-700/50 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white font-mono"
                       rows={6}
                     />
-                    {errors.helperCode && <p className="mt-1 text-sm text-red-400">{errors.helperCode.message}</p>}
                   </div>
                 </div>
               </div>
