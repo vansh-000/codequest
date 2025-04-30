@@ -3,10 +3,18 @@ export type Example = {
 	outputText: string;
 	explanation?: string;
 };
+
 export type TestCase = {
 	input: string;
 	output: string;
 };
+
+export type CodeBox = {
+	language:string;
+	helperCode:string;
+	starterCode:string;
+};
+
 export type Problem = {
 	_id: string;
 	title: string;
@@ -19,8 +27,7 @@ export type Problem = {
 	description: string;
 	examples: Example[];
 	constraints: string[];
-	handlerFunction: string;
-	helperCode: string;
+	codes: CodeBox[];
 	starterCode: string;
 	videoId?: string;
 	link?: string;

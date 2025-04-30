@@ -321,8 +321,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
               <hr className="absolute bottom-0 h-0.5 w-full rounded-full border-none bg-white" />
             </div>
           </div>
-
-          {submissionStatus && (
+          {submissionStatus && isSubmitted && (
             <div className={`mt-2 p-2 rounded-md ${submissionStatus === "Accepted" ? "bg-green-800/30 text-green-400" :
               submissionStatus === "Wrong Answer" ? "bg-red-800/30 text-red-400" :
                 "bg-yellow-800/30 text-yellow-400"
