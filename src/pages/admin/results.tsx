@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { CheckCircle, Loader2, Award, ArrowUpDown, UserX, RefreshCw } from "lucide-react";
+import { useRouter } from "next/router";
+import { CheckCircle, Loader2, ArrowLeft, Award, ArrowUpDown, UserX, RefreshCw } from "lucide-react";
 
 interface Student {
   _id: string;
@@ -9,6 +10,7 @@ interface Student {
 }
 
 export default function Results() {
+  const router = useRouter();
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,13 +52,13 @@ export default function Results() {
   const sortStudents = () => {
     const direction = sortDirection === "asc" ? "desc" : "asc";
     setSortDirection(direction);
-    
+
     const sorted = [...students].sort((a, b) => {
-      return direction === "asc" 
-        ? a.totalScore - b.totalScore 
+      return direction === "asc"
+        ? a.totalScore - b.totalScore
         : b.totalScore - a.totalScore;
     });
-    
+
     setStudents(sorted);
   };
 
@@ -73,6 +75,15 @@ export default function Results() {
             Performance overview of all students in the coding examination
           </p>
         </div>
+        <div className="flex space-x-4">
+          <button
+              onClick={() => router.push("/admin")}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2 transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span>Dashboard</span>
+            </button>
+          </div>
 
         {!loading && students.length > 0 && (
           <div className="flex justify-center gap-6 mb-12">
@@ -188,7 +199,7 @@ export default function Results() {
                       Name
                     </th>
                     <th scope="col" className="px-6 py-3 w-0 font-medium">
-                      <button 
+                      <button
                         onClick={sortStudents}
                         className="flex items-center gap-2 hover:text-gray-900 dark:hover:text-white"
                       >
@@ -202,9 +213,8 @@ export default function Results() {
                   {students.map((student, index) => (
                     <tr
                       key={student._id}
-                      className={`border-b dark:border-gray-700 ${
-                        index % 2 === 0 ? "" : "bg-gray-50 dark:bg-gray-700/20"
-                      } hover:bg-gray-100 dark:hover:bg-gray-700/40 transition-colors`}
+                      className={`border-b dark:border-gray-700 ${index % 2 === 0 ? "" : "bg-gray-50 dark:bg-gray-700/20"
+                        } hover:bg-gray-100 dark:hover:bg-gray-700/40 transition-colors`}
                     >
                       <td className="px-4 py-4 w-10">
                         <CheckCircle className={`w-5 h-5 ${getScoreColor(student.totalScore)}`} />

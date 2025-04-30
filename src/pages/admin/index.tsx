@@ -123,6 +123,13 @@ const ProblemListPage: React.FC = () => {
           </div>
 
           <div className="flex space-x-4">
+          <button
+              onClick={() => router.push("/admin/results")}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2 transition-colors"
+            >
+              <BookOpen className="h-5 w-5" />
+              <span>Results</span>
+            </button>
             <button
               onClick={() => router.push("/admin/add-problem")}
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2 transition-colors"

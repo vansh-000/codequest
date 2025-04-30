@@ -50,13 +50,13 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     if (!problem.codes || !Array.isArray(problem.codes) || problem.codes.length === 0) {
       return ["cpp"];
     }
-    
+
     // Create a mapping from language name to our Language type
     const languageNameToKey: Record<string, Language> = {};
     Object.entries(LANGUAGE_CONFIG).forEach(([key, config]) => {
       languageNameToKey[config.name.toLowerCase()] = key as Language;
     });
-    
+
     // Extract and map languages from problem.codes
     const availableLangs = problem.codes
       .filter(code => code.language && typeof code.language === 'string')
@@ -65,7 +65,6 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
         return languageNameToKey[languageName];
       })
       .filter((lang): lang is Language => !!lang);
-    
     return availableLangs.length > 0 ? availableLangs : ["cpp"];
   };
 
@@ -79,8 +78,10 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
   const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus | null>(null);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(alreadySubmitted);
+  const [nowSubmitted, setAlreadySubmitted] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const fullscreenSubmitRef = useRef<boolean>(false);
 
   // Function to get starter code based on language
   const getStarterCode = (lang: Language): string => {
@@ -131,11 +132,11 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
 
     if (existingSubmission && existingSubmission.code) {
       console.log("Existing submission found:", existingSubmission);
-      
+
       // Check if existingSubmission.language is in availableLanguages
       const submissionLang = existingSubmission.language || "cpp";
       const isLanguageAvailable = availableLanguages.includes(submissionLang);
-      
+
       setCode(existingSubmission.code);
       setLanguage(isLanguageAvailable ? submissionLang : availableLanguages[0]);
       setSubmissionStatus(existingSubmission.status);
@@ -181,11 +182,34 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     }
   };
 
+  const checkExistingSubmission = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/user/${userId}/problem/${problem._id}`
+      );
+      console.log("Existing submission response:", response);
+      if (response.data && response.data.submission) {
+        setAlreadySubmitted(true);
+      } else {
+        setAlreadySubmitted(false);
+      }
+    } catch (err) {
+      console.error("No submission found or error occurred:", err);
+    }
+  };
+
+
+
   const createSubmission = async (status: SubmissionStatus, resultScore: number = 0) => {
+    checkExistingSubmission();
     if (!userId) {
       setError("You must be logged in to submit solutions.");
       return null;
     }
+    if (nowSubmitted){
+      console.log("Already submitted")
+      return null;
+    };
     try {
       const submissionData = {
         code: code,
@@ -229,22 +253,21 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
       if (res.data.error) {
         setError(res.data.errors);
         await createSubmission("Wrong Answer", 0);
-        setIsSubmitted(true);
         setSubmissionStatus("Wrong Answer");
       } else if (res.data.output) {
         setoutput(res.data.output.split('\n'));
         await createSubmission("Accepted", 10);
-        setIsSubmitted(true);
         setSubmissionStatus("Accepted");
       }
     } catch (err: any) {
       setError(err.response?.data?.message || err.message);
       await createSubmission("Compilation Error", 0);
-      setIsSubmitted(true);
       setSubmissionStatus("Compilation Error");
     } finally {
       setLoading(false);
       setIsSubmitted(true);
+      console.log("Submission status:", isSubmitted);
+      console.log("Submission status:", submissionStatus);
     }
   };
 
@@ -252,6 +275,11 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     if (!document.fullscreenElement && editorRef.current) {
       const node = editorRef.current.parentNode?.parentNode?.parentNode as any;
       if (!node) return;
+
+      if (!isSubmitted) {
+        fullscreenSubmitRef.current = true;
+      }
+
       node.requestFullscreen().catch((err) => {
         console.error("Error attempting to enable full-screen mode:", err);
       });
@@ -261,11 +289,12 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
   };
 
   useEffect(() => {
-    const handleFullscreenChange = () => {
+    const handleFullscreenChange = async () => {
       const fullscreen = Boolean(document.fullscreenElement);
       setIsFullscreen(fullscreen);
-      if (!fullscreen && !isSubmitted) {
-        handleSubmit();
+      if (!fullscreen && fullscreenSubmitRef.current && !isSubmitted) {
+        fullscreenSubmitRef.current = false;
+        await handleSubmit();
       }
     };
 
