@@ -44,7 +44,33 @@ const LANGUAGE_CONFIG = {
 };
 
 const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, alreadySubmitted }) => {
-  const [language, setLanguage] = useState<Language>("cpp");
+  // Improved function to get available languages from problem.codes
+  const getAvailableLanguages = (): Language[] => {
+    // If problem.codes doesn't exist or isn't an array, return a default
+    if (!problem.codes || !Array.isArray(problem.codes) || problem.codes.length === 0) {
+      return ["cpp"];
+    }
+    
+    // Create a mapping from language name to our Language type
+    const languageNameToKey: Record<string, Language> = {};
+    Object.entries(LANGUAGE_CONFIG).forEach(([key, config]) => {
+      languageNameToKey[config.name.toLowerCase()] = key as Language;
+    });
+    
+    // Extract and map languages from problem.codes
+    const availableLangs = problem.codes
+      .filter(code => code.language && typeof code.language === 'string')
+      .map(code => {
+        const languageName = code.language.toLowerCase();
+        return languageNameToKey[languageName];
+      })
+      .filter((lang): lang is Language => !!lang);
+    
+    return availableLangs.length > 0 ? availableLangs : ["cpp"];
+  };
+
+  const availableLanguages = getAvailableLanguages();
+  const [language, setLanguage] = useState<Language>(availableLanguages[0]);
   const [code, setCode] = useState("");
   const [output, setoutput] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -105,13 +131,18 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
 
     if (existingSubmission && existingSubmission.code) {
       console.log("Existing submission found:", existingSubmission);
+      
+      // Check if existingSubmission.language is in availableLanguages
+      const submissionLang = existingSubmission.language || "cpp";
+      const isLanguageAvailable = availableLanguages.includes(submissionLang);
+      
       setCode(existingSubmission.code);
-      setLanguage(existingSubmission.language || "cpp");
+      setLanguage(isLanguageAvailable ? submissionLang : availableLanguages[0]);
       setSubmissionStatus(existingSubmission.status);
     } else {
       setCode(getStarterCode(language));
     }
-  }, [language, problem, existingSubmission, alreadySubmitted]);
+  }, [language, problem, existingSubmission, alreadySubmitted, availableLanguages]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -213,6 +244,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
       setSubmissionStatus("Compilation Error");
     } finally {
       setLoading(false);
+      setIsSubmitted(true);
     }
   };
 
@@ -256,27 +288,35 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     <div ref={editorRef} className="flex flex-col bg-dark-layer-1 relative overflow-x-hidden">
       <div className='flex items-center justify-between bg-dark-layer-2 h-11 w-full'>
         <div className='flex items-center text-white relative' ref={dropdownRef}>
-          <button
-            onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-            className='flex items-center rounded focus:outline-none bg-dark-fill-3 text-dark-label-2 hover:bg-dark-fill-2 px-2 py-1.5 font-medium'
-          >
-            <div className='flex items-center px-1'>
-              <div className='text-xs text-label-2 dark:text-dark-label-2'>{LANGUAGE_CONFIG[language].name}</div>
-              <div className='ml-1'>
-                <BiChevronDown className={`transition ${isLanguageDropdownOpen ? 'rotate-180' : ''}`} />
+          {availableLanguages.length > 1 ? (
+            <button
+              onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
+              className='flex items-center rounded focus:outline-none bg-dark-fill-3 text-dark-label-2 hover:bg-dark-fill-2 px-2 py-1.5 font-medium'
+            >
+              <div className='flex items-center px-1'>
+                <div className='text-xs text-label-2 dark:text-dark-label-2'>{LANGUAGE_CONFIG[language].name}</div>
+                <div className='ml-1'>
+                  <BiChevronDown className={`transition ${isLanguageDropdownOpen ? 'rotate-180' : ''}`} />
+                </div>
+              </div>
+            </button>
+          ) : (
+            <div className='flex items-center rounded bg-dark-fill-3 text-dark-label-2 px-2 py-1.5 font-medium'>
+              <div className='flex items-center px-1'>
+                <div className='text-xs text-label-2 dark:text-dark-label-2'>{LANGUAGE_CONFIG[language].name}</div>
               </div>
             </div>
-          </button>
+          )}
 
-          {isLanguageDropdownOpen && (
+          {isLanguageDropdownOpen && availableLanguages.length > 1 && (
             <div className='absolute top-full left-0 mt-1 bg-dark-layer-1 rounded-md shadow-lg z-10 border border-dark-fill-3'>
-              {Object.entries(LANGUAGE_CONFIG).map(([key, value]) => (
+              {availableLanguages.map((langKey) => (
                 <div
-                  key={key}
-                  className={`px-4 py-2 text-sm hover:bg-dark-fill-3 cursor-pointer ${language === key ? 'bg-dark-fill-2' : ''}`}
-                  onClick={() => handleLanguageChange(key as Language)}
+                  key={langKey}
+                  className={`px-4 py-2 text-sm hover:bg-dark-fill-3 cursor-pointer ${language === langKey ? 'bg-dark-fill-2' : ''}`}
+                  onClick={() => handleLanguageChange(langKey)}
                 >
-                  {value.name}
+                  {LANGUAGE_CONFIG[langKey].name}
                 </div>
               ))}
             </div>
