@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { CheckCircle, Loader2, ArrowLeft, Award, ArrowUpDown, UserX, RefreshCw } from "lucide-react";
+import { CheckCircle, Loader2, ArrowLeft, Award, ArrowUpDown, UserX, RefreshCw, Download } from "lucide-react";
 
 interface Student {
   _id: string;
@@ -15,6 +15,7 @@ export default function Results() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [exporting, setExporting] = useState(false);
 
   const fetchStudents = async () => {
     setLoading(true);
@@ -62,6 +63,93 @@ export default function Results() {
     setStudents(sorted);
   };
 
+  const exportToCSV = () => {
+    setExporting(true);
+    try {
+      const headers = ["ID", "Username", "Score"];
+      const csvContent = [
+        headers.join(","),
+        ...students.map(student =>
+          [student._id, student.username, student.totalScore].join(",")
+        )
+      ].join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `student_results_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error("Error exporting data:", err);
+      alert("Failed to export data. Please try again.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const exportToWord = () => {
+    setExporting(true);
+    try {
+      let tableContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
+        <head>
+          <meta charset="utf-8">
+          <title>Student Results</title>
+        </head>
+        <body>
+          <h1>Student Results Report</h1>
+          <p>Generated on: ${new Date().toLocaleDateString()}</p>
+          <h2>Summary</h2>
+          <p>Total Students: ${students.length}</p>
+          <p>High Scores (80+): ${students.filter(s => s.totalScore >= 80).length}</p>
+          <p>Average Score: ${Math.round(students.reduce((acc, student) => acc + student.totalScore, 0) / (students.length || 1))}</p>
+          <h2>Individual Results</h2>
+          <table border="1" cellspacing="0" cellpadding="5">
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Score</th>
+            </tr>
+      `;
+
+      students.forEach(student => {
+        tableContent += `
+          <tr>
+            <td>${student._id}</td>
+            <td>${student.username}</td>
+            <td>${student.totalScore}</td>
+          </tr>
+        `;
+      });
+
+      tableContent += `
+          </table>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob([tableContent], { type: "application/msword;charset=utf-8" });
+
+
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+
+      link.setAttribute("href", url);
+      link.setAttribute("download", `student_results_${new Date().toISOString().split('T')[0]}.doc`);
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error("Error exporting data:", err);
+      alert("Failed to export data. Please try again.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <main className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-16">
@@ -75,15 +163,36 @@ export default function Results() {
             Performance overview of all students in the coding examination
           </p>
         </div>
-        <div className="flex space-x-4">
+        <div className="flex justify-between mb-6">
           <button
-              onClick={() => router.push("/admin")}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2 transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span>Dashboard</span>
-            </button>
-          </div>
+            onClick={() => router.push("/admin")}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2 transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            <span>Dashboard</span>
+          </button>
+
+          {students.length > 0 &&
+            <div className="flex gap-2">
+              <button
+                onClick={exportToCSV}
+                disabled={exporting}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors disabled:opacity-50"
+              >
+                <Download className="h-5 w-5" />
+                <span>{exporting ? "Exporting..." : "Export CSV"}</span>
+              </button>
+              <button
+                onClick={exportToWord}
+                disabled={exporting}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors disabled:opacity-50"
+              >
+                <Download className="h-5 w-5" />
+                <span>{exporting ? "Exporting..." : "Export Word"}</span>
+              </button>
+            </div>
+          }
+        </div>
 
         {!loading && students.length > 0 && (
           <div className="flex justify-center gap-6 mb-12">
