@@ -28,23 +28,26 @@ const ProblemPage: React.FC = () => {
   const [problemIds, setProblemIds] = useState<string[]>([]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
-  const editorRef = useRef<HTMLDivElement>(null); 
+  const editorRef = useRef<HTMLDivElement>(null);
   const [existingSubmission, setExistingSubmission] = useState<Submission | null>(null);
 
-  const getUserId = () => {
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!hasMounted) return;
     try {
       const userString = localStorage.getItem("user");
-      if (!userString) return null;
-      
+      if (!userString) {
+        setUserId(null);
+        return;
+      }
       const user = JSON.parse(userString);
-      return user._id;
+      setUserId(user._id);
     } catch (err) {
       console.error("Error parsing user from localStorage:", err);
-      return null;
+      setUserId(null);
     }
-  };
-
-  const userId = getUserId();
+  }, [hasMounted]);
 
   // Fetch all problem IDs
   useEffect(() => {
@@ -70,6 +73,7 @@ const ProblemPage: React.FC = () => {
     if (!_id) return;
 
     const fetchProblem = async () => {
+      setLoading(true);
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/problems/get-problem/${_id}`, {
           headers: {
@@ -94,18 +98,16 @@ const ProblemPage: React.FC = () => {
     fetchProblem();
   }, [_id]);
 
+  // Check for existing submission when problem or userId is ready
   useEffect(() => {
-    // console.log("Problem:", problem);
-    // console.log("User", userId);
     if (!problem || !userId) return;
-    
+
     const checkExistingSubmission = async () => {
       try {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/user/${userId}/problem/${problem._id}`
         );
-        // console.log(response);
-        
+
         if (response.data && response.data.submission) {
           setAlreadySubmitted(true);
           setExistingSubmission(response.data.submission);
@@ -145,6 +147,7 @@ const ProblemPage: React.FC = () => {
           <button
             onClick={enterFullscreen}
             className="px-6 py-3 text-lg font-semibold bg-blue-600 rounded hover:bg-blue-700 transition"
+            aria-label="Start problem in fullscreen mode"
           >
             Start Problem (Fullscreen)
           </button>
@@ -154,8 +157,8 @@ const ProblemPage: React.FC = () => {
       {isFullscreen && (
         <>
           <Topbar problemPage problemId={_id as string} problemIds={problemIds} />
-          <Workspace 
-            problem={problem} 
+          <Workspace
+            problem={problem}
             existingSubmission={existingSubmission}
             alreadySubmitted={alreadySubmitted}
           />
