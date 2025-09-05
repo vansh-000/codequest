@@ -8,7 +8,7 @@ type UserInfo = {
 
 type AuthModalState = {
   isOpen: boolean;
-  type: "login" | "register" | "forgotPassword"|"resetPassword";
+  type: "login" | "register" | "forgotPassword" | "resetPassword";
   user: UserInfo;
 };
 
@@ -18,7 +18,11 @@ const initalAuthModalState: AuthModalState = {
   user: null,
 };
 
-export const authModalState = atom<AuthModalState>({
-  key: "authModalState",
-  default: initalAuthModalState,
-});
+const AUTH_MODAL_KEY = "authModalState";
+
+export const authModalState =
+  (global as any)[AUTH_MODAL_KEY] ||
+  ((global as any)[AUTH_MODAL_KEY] = atom<AuthModalState>({
+    key: AUTH_MODAL_KEY,
+    default: initalAuthModalState,
+  }));

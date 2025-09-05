@@ -71,7 +71,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
   const [isSubmitted, setIsSubmitted] = useState(alreadySubmitted);
   const editorRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const fullscreenSubmitRef = useRef<boolean>(false);
+  const fullscreenSubmitRef = useRef<boolean>(true);
 
   const getStarterCode = (lang: Language): string => {
     if (!problem.codes || !Array.isArray(problem.codes)) {
@@ -156,6 +156,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
       e.key === "F11"
     ) {
       console.log('Key pressed:', e.key);
+      toggleFullscreen();
       e.preventDefault();
       e.stopPropagation();
       return;
@@ -167,7 +168,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
 
   document.addEventListener("keydown", handleKeyDown);
   return () => document.removeEventListener("keydown", handleKeyDown);
-}, [isFullscreen, isSubmitted, code, language]);
+}, []);
 
 
   // On toggling fullscreen, mark ref only if not submitted yet
@@ -176,10 +177,11 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
       const node = editorRef.current.parentNode?.parentNode?.parentNode as any;
       if (!node) return;
       if (!isSubmitted) {
-        fullscreenSubmitRef.current = true;   // Mark for auto-submit on exit
+        fullscreenSubmitRef.current = true;
       }
       node.requestFullscreen().catch(console.error);
     } else {
+      handleSubmit();
       document.exitFullscreen();
     }
   };
@@ -195,7 +197,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     };
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, [isFullscreen, isSubmitted])
+  }, [isFullscreen])
 
   const handleRun = async () => {
     setLoading(true);
