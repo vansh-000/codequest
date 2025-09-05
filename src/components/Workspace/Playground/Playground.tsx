@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Split from "react-split";
 import CodeMirror from "@uiw/react-codemirror";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
@@ -47,7 +47,7 @@ const LANGUAGE_CONFIG: Record<Language, any> = {
 const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, alreadySubmitted }) => {
   const availableLanguages = useMemo(() => {
     if (!problem.codes || !Array.isArray(problem.codes) || problem.codes.length === 0) {
-      return ["cpp"];
+      return ["cpp"] as Language[];
     }
     const languageNameToKey: Record<string, Language> = {};
     Object.entries(LANGUAGE_CONFIG).forEach(([key, config]) => {
@@ -57,7 +57,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
       .filter(code => code.language && typeof code.language === 'string')
       .map(code => languageNameToKey[code.language.toLowerCase()])
       .filter((lang): lang is Language => !!lang);
-    return availableLangs.length > 0 ? availableLangs : ["cpp"];
+    return availableLangs.length > 0 ? availableLangs : (["cpp"] as Language[]);
   }, [problem]);
 
   const [language, setLanguage] = useState<Language>(availableLanguages[0]);
@@ -72,6 +72,8 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
   const editorRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const fullscreenSubmitRef = useRef<boolean>(true);
+  const isSubmittedRef = useRef<boolean>(isSubmitted);
+  useEffect(() => { isSubmittedRef.current = isSubmitted; }, [isSubmitted]);
 
   const getStarterCode = (lang: Language): string => {
     if (!problem.codes || !Array.isArray(problem.codes)) {
@@ -120,11 +122,12 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
   useEffect(() => {
     setIsSubmitted(alreadySubmitted);
     if (existingSubmission && existingSubmission.code) {
-      const submissionLang = existingSubmission.language || availableLanguages[0];
+      const submissionLang: Language =
+        existingSubmission.language && availableLanguages.includes(existingSubmission.language)
+          ? existingSubmission.language
+          : availableLanguages;
       setCode(existingSubmission.code);
-      setLanguage(
-        availableLanguages.includes(submissionLang) ? submissionLang : availableLanguages[0]
-      );
+      setLanguage(submissionLang);
       setSubmissionStatus(existingSubmission.status);
     } else {
       setCode(getStarterCode(language));
@@ -148,57 +151,6 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (
-      e.key === "Escape" ||
-      e.key === "Esc" ||
-      e.key === "F11"
-    ) {
-      console.log('Key pressed:', e.key);
-      toggleFullscreen();
-      e.preventDefault();
-      e.stopPropagation();
-      return;
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-      if (!isSubmitted) handleRun();
-    }
-  };
-
-  document.addEventListener("keydown", handleKeyDown);
-  return () => document.removeEventListener("keydown", handleKeyDown);
-}, []);
-
-
-  // On toggling fullscreen, mark ref only if not submitted yet
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement && editorRef.current) {
-      const node = editorRef.current.parentNode?.parentNode?.parentNode as any;
-      if (!node) return;
-      if (!isSubmitted) {
-        fullscreenSubmitRef.current = true;
-      }
-      node.requestFullscreen().catch(console.error);
-    } else {
-      handleSubmit();
-      document.exitFullscreen();
-    }
-  };
-
-  useEffect(() => {
-    const handleFullscreenChange = async () => {
-      const fullscreen = Boolean(document.fullscreenElement);
-      setIsFullscreen(fullscreen);
-      if (!fullscreen && fullscreenSubmitRef.current && !isSubmitted) {
-        fullscreenSubmitRef.current = false;
-        await handleSubmit();
-      }
-    };
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, [isFullscreen])
-
   const handleRun = async () => {
     setLoading(true);
     setError(null);
@@ -207,7 +159,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/playground/run`,
         { code: code + getHelperCode(language), language }
       );
-      setOutput(res.data.output.split('\n'));
+      setOutput(res.data.output.split("\n"));
     } catch (err: any) {
       setError(err.response?.data?.message || err.message);
     } finally {
@@ -215,34 +167,35 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     }
   };
 
-  const createSubmission = async (status: SubmissionStatus, resultScore: number = 0) => {
+  const createSubmission = async (status: SubmissionStatus, resultScore: number = 0, codeValue?: string) => {
     if (!userId) {
       setError("You must be logged in to submit solutions.");
       return null;
     }
-    if (isSubmitted) {
+    if (isSubmittedRef.current) {
       return null;
-    };
+    }
     try {
       const submissionData = {
-        code,
+        code: codeValue ?? code,
         language,
         status,
         score: resultScore
       };
+      console.log("Submission Data: ", submissionData);
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/user/${userId}/problem/${problem._id}`,
         submissionData
       );
       return response.data;
     } catch (err: any) {
-      setError(prev => `${prev ? prev + '. ' : ''}Failed to save submission: ${err.response?.data?.message || err.message}`);
+      setError(prev => `${prev ? prev + ". " : ""}Failed to save submission: ${err.response?.data?.message || err.message}`);
       return null;
     }
   };
 
-  const handleSubmit = async () => {
-    if (isSubmitted) {
+  const handleSubmit = useCallback(async () => {
+    if (isSubmittedRef.current) {
       setError("You have already submitted a solution for this problem.");
       return;
     }
@@ -250,27 +203,87 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     setError(null);
     setSubmissionStatus(null);
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/playground/submit`,
-        { code: code + getHelperCode(language), language });
+      const combined = code + getHelperCode(language); // judge input
+      console.log("Submitting Code: ", combined);
 
-      if (res.data.error) {
-        setError(res.data.errors);
-        await createSubmission("Wrong Answer", 0);
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/playground/submit`,
+        { code: combined, language }
+      );
+
+      const apiError = res.data?.error ?? res.data?.errors;
+      if (apiError) {
+        setError(apiError);
+        setOutput([]); // optional: clear output on error
+        const saved = await createSubmission("Wrong Answer", 0, code);
         setSubmissionStatus("Wrong Answer");
-      } else if (res.data.output) {
-        setOutput(res.data.output.split('\n'));
-        await createSubmission("Accepted", 10);
+        if (saved) setIsSubmitted(true);
+      } else if (res.data?.output) {
+        setOutput(res.data.output.split("\n"));
+        const saved = await createSubmission("Accepted", 10, code);
         setSubmissionStatus("Accepted");
+        if (saved) setIsSubmitted(true);
+      } else {
+        setError("Unknown response from judge.");
+        const saved = await createSubmission("Wrong Answer", 0, code);
+        setSubmissionStatus("Wrong Answer");
+        if (saved) setIsSubmitted(true);
       }
     } catch (err: any) {
       setError(err.response?.data?.message || err.message);
-      await createSubmission("Compilation Error", 0);
+      const saved = await createSubmission("Compilation Error", 0, code);
       setSubmissionStatus("Compilation Error");
+      if (saved) setIsSubmitted(true);
     } finally {
       setLoading(false);
-      setIsSubmitted(true);
+    }
+  }, [code, language, problem._id]);
+  const handleSubmitRef = useRef(handleSubmit);
+  useEffect(() => { handleSubmitRef.current = handleSubmit; }, [handleSubmit]);
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === "Esc" || e.key === "F11") {
+        toggleFullscreen();
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        if (!isSubmittedRef.current) handleRun();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Fullscreen toggle: do NOT submit here on exit; submit occurs in the fullscreenchange handler
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement && editorRef.current) {
+      const node = editorRef.current.parentNode?.parentNode?.parentNode as any;
+      if (!node) return;
+      if (!isSubmittedRef.current) {
+        fullscreenSubmitRef.current = true; // mark submit on exit
+      }
+      node.requestFullscreen().catch(console.error);
+    } else {
+      document.exitFullscreen(); // no direct submit here; event will handle it
     }
   };
+
+  // fullscreenchange listener: always uses refs to avoid stale closures
+  useEffect(() => {
+    const handleFullscreenChange = async () => {
+      const fullscreen = Boolean(document.fullscreenElement);
+      setIsFullscreen(fullscreen);
+      if (!fullscreen && fullscreenSubmitRef.current && !isSubmittedRef.current) {
+        fullscreenSubmitRef.current = false;
+        await handleSubmitRef.current();
+      }
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
 
   const handleLanguageChange = (lang: Language) => {
     setLanguage(lang);
@@ -335,16 +348,14 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
         </div>
       </div>
 
-      <Split className="h-[calc(100vh-95px)]" direction="vertical" sizes={[60, 40]} minSize={60} >
+      <Split className="h-[calc(100vh-95px)]" direction="vertical" sizes={[60, 40]} minSize={60}>
         <div className="w-full overflow-auto relative">
           <CodeMirror
             value={code}
             theme={vscodeDark}
             extensions={[LANGUAGE_CONFIG[language].extension()]}
-            onChange={setCode}
+            onChange={(value) => setCode(value)}
             editable={!isSubmitted}
-            // Enhanced editor options
-            basicSetup={{ lineNumbers: true, autocompletion: true }}
           />
           {isSubmitted && (
             <div className="absolute top-0 left-0 right-0 bg-gray-900/60 text-white text-center py-2 z-10" aria-live="polite">
@@ -365,10 +376,13 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
               <hr className="absolute bottom-0 h-0.5 w-full rounded-full border-none bg-white" />
             </div>
           </div>
+
           {submissionStatus && isSubmitted && (
-            <div className={`mt-2 p-2 rounded-md ${submissionStatus === "Accepted" ? "bg-green-800/30 text-green-400" :
-              submissionStatus === "Wrong Answer" ? "bg-red-800/30 text-red-400" :
-                "bg-yellow-800/30 text-yellow-400"
+            <div className={`mt-2 p-2 rounded-md ${submissionStatus === "Accepted"
+                ? "bg-green-800/30 text-green-400"
+                : submissionStatus === "Wrong Answer"
+                  ? "bg-red-800/30 text-red-400"
+                  : "bg-yellow-800/30 text-yellow-400"
               }`} aria-live="assertive">
               Status: {submissionStatus}
               {submissionStatus === "Accepted" && <span className="ml-2">✓</span>}
@@ -391,8 +405,8 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
                     <label className="text-sm font-medium mt-4 text-white">Your Output {index + 1}:</label>
                     <div
                       className={`w-full rounded-lg border px-3 py-[10px] mt-2 bg-dark-fill-3 border-transparent text-white ${output[index]?.trim() === testcase.output.trim()
-                        ? "border-green-500"
-                        : "border-red-500"
+                          ? "border-green-500"
+                          : "border-red-500"
                         }`}
                     >
                       {output[index] || ""}
@@ -409,6 +423,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
           </div>
         </div>
       </Split>
+
       <EditorFooter
         onRun={handleRun}
         onSubmit={handleSubmit}
