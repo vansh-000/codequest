@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, Award, CheckCircle, Loader2, GraduationCap, Book, AlertTriangle, Code, Trash2, Edit, Save, X } from "lucide-react";
 import Link from "next/link";
 
@@ -38,12 +38,7 @@ export default function StudentDetailPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [actionFeedback, setActionFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
-  useEffect(() => {
-    if (!id) return;
-    fetchStudentDetails();
-  }, [id]);
-
-  const fetchStudentDetails = async () => {
+  const fetchStudentDetails = useCallback(async () => {
     if (!id) return;
     try {
       setLoading(true);
@@ -52,22 +47,6 @@ export default function StudentDetailPage() {
       const { username, submissions } = await res.json();
       const totalScore = submissions.reduce((sum: number, sub: Submission) => sum + sub.score, 0);
 
-      // // Generate placeholder problem titles (in a real app, you'd fetch these)
-      // const mockTitles: Record<string, string> = {};
-      // submissions.forEach((sub: Submission, index: number) => {
-      //   if (!mockTitles[sub.problem]) {
-      //     // This is just for mock - real app would fetch actual problem titles
-      //     if (sub.problem === "680e3a82981717af1fe0cdb6") {
-      //       mockTitles[sub.problem] = "Activity Selection";
-      //     } else if (sub.problem === "680e3bf4981717af1fe0cdd3") {
-      //       mockTitles[sub.problem] = "Two Sum";
-      //     } else {
-      //       mockTitles[sub.problem] = `Problem ${index + 1}`;
-      //     }
-      //   }
-      // });
-
-      // setProblemTitles(mockTitles);
 
       setStudent({
         name: username,
@@ -80,7 +59,12 @@ export default function StudentDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+    fetchStudentDetails();
+  }, [id, fetchStudentDetails]);
 
   const toggleQuestionExpansion = (submissionId: string) => {
     setExpandedQuestions(prev => {

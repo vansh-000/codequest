@@ -12,9 +12,9 @@ type AuthModalProps = {};
 function useCloseModal() {
 	const setAuthModal = useSetRecoilState(authModalState);
 
-	const closeModal = () => {
-		setAuthModal((prev) => ({ ...prev, isOpen: false, type: "login" }));
-	};
+	const closeModal = React.useCallback(() => {
+		setAuthModal((prev: any) => ({ ...prev, isOpen: false, type: "login" }));
+	}, [setAuthModal]);
 
 	useEffect(() => {
 		const handleEsc = (e: KeyboardEvent) => {
@@ -22,13 +22,13 @@ function useCloseModal() {
 		};
 		window.addEventListener("keydown", handleEsc);
 		return () => window.removeEventListener("keydown", handleEsc);
-	}, []);
+	}, [closeModal]);
 
 	return closeModal;
 }
 
 const AuthModal: React.FC<AuthModalProps> = () => {
-	const authModel = useRecoilValue(authModalState);
+	const authModel = useRecoilValue(authModalState) as { isOpen: boolean; type: string };
 	const handleClick = useCloseModal();
 
 	return (

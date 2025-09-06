@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Logout from "@/components/UI/LogoutBtn";
@@ -53,30 +53,7 @@ const EditProblemPage: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        if (parsedUser) {
-          if (parsedUser.role === "user") {
-            router.push("/");
-          } else if (id) {
-            fetchProblemDetails(id as string);
-          }
-        } else {
-          router.push("/admin");
-        }
-      } catch (error) {
-        console.error("Error parsing storedUser:", error);
-        localStorage.removeItem("user");
-        router.push("/admin");
-      }
-    }
-  }, [router, id]);
-
-  const fetchProblemDetails = async (problemId: string) => {
+  const fetchProblemDetails = useCallback(async (problemId: string) => {
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/problems/get-problem/${problemId}`,
@@ -129,7 +106,30 @@ const EditProblemPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setValue]);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        if (parsedUser) {
+          if (parsedUser.role === "user") {
+            router.push("/");
+          } else if (id) {
+            fetchProblemDetails(id as string);
+          }
+        } else {
+          router.push("/admin");
+        }
+      } catch (error) {
+        console.error("Error parsing storedUser:", error);
+        localStorage.removeItem("user");
+        router.push("/admin");
+      }
+    }
+  }, [router, id, fetchProblemDetails]);
 
   const onSubmit: SubmitHandler<ProblemFormData> = async (data) => {
     setSaving(true);

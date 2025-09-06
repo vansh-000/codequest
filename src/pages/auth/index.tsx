@@ -7,14 +7,15 @@ import AuthModal from "@/components/Modals/AuthModal";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { authModalState } from "@/atoms/authModalAtom";
 import { useRouter } from "next/router";
+import { AuthModalState } from "@/atoms/authModalAtom";
 
 const HomePage: React.FC = () => {
   const setAuthModalState = useSetRecoilState(authModalState);
-  const authModal = useRecoilValue(authModalState);
+  const authModal = useRecoilValue(authModalState) as AuthModalState;
   const user = authModal.user;
   const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState("javascript");
+  const [activeTab, setActiveTab] = useState<keyof typeof codeSnippets>("javascript");
   const [codeSubmitted, setCodeSubmitted] = useState(false);
 
   useEffect(() => {
@@ -90,7 +91,7 @@ const HomePage: React.FC = () => {
                   label="Get Started"
                   variant="primary"
                   onClick={() => {
-                    setAuthModalState((prev) => ({ ...prev, isOpen: true }));
+                    setAuthModalState((prev: AuthModalState) => ({ ...prev, isOpen: true }));
                   }}
                 />
                 <Button
@@ -116,7 +117,7 @@ const HomePage: React.FC = () => {
 
                 {/* Editor Tabs */}
                 <div className="flex bg-gray-800 border-b border-gray-700">
-                  {['javascript', 'python', 'java'].map(lang => (
+                  {(['javascript', 'python', 'java'] as Array<keyof typeof codeSnippets>).map(lang => (
                     <button
                       key={lang}
                       className={`px-4 py-2 text-sm font-medium ${activeTab === lang ? 'bg-gray-900 text-blue-400 border-t-2 border-blue-400' : 'text-gray-400 hover:text-gray-200'}`}
@@ -293,7 +294,7 @@ const HomePage: React.FC = () => {
               label="Sign up for free"
               variant="primary"
               onClick={() => {
-                setAuthModalState((prev) => ({ ...prev, isOpen: true }));
+                setAuthModalState((prev: AuthModalState) => ({ ...prev, isOpen: true }));
               }}
             />
             <Button
@@ -371,7 +372,7 @@ const TestimonialCard = ({ quote, author, role }: { quote: string; author: strin
         <Star key={star} className="w-4 h-4 text-yellow-500 fill-yellow-500" />
       ))}
     </div>
-    <p className="text-gray-300 mb-6">"{quote}"</p>
+    <p className="text-gray-300 mb-6">&quot;{quote}&quot;</p>
     <div>
       <p className="font-medium text-white">{author}</p>
       <p className="text-sm text-gray-400">{role}</p>

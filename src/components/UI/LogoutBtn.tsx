@@ -12,7 +12,7 @@ const Logout: React.FC = () => {
   const handleLogout = async () => {
     setLoading(true);
     try {
-      setAuthModalState((prev) => ({ ...prev, user: null }));
+      setAuthModalState((prev: any) => ({ ...prev, user: null }));
       localStorage.removeItem("user");
       toast.success("Logged out successfully!");
       router.push("/auth");

@@ -17,7 +17,7 @@ const Login: React.FC = () => {
   const handleClick = (
     type: "login" | "register" | "forgotPassword" | "resetPassword"
   ) => {
-    setAuthModalState((prev) => ({ ...prev, type }));
+    setAuthModalState((prev: any) => ({ ...prev, type }));
   };
 
   // Function to update form inputs
@@ -55,7 +55,7 @@ const Login: React.FC = () => {
       localStorage.setItem("user", JSON.stringify(data.data.user));
 
       // Update Recoil state
-      setAuthModalState((prev) => ({
+      setAuthModalState((prev: any) => ({
         ...prev,
         user: {
           userId: data.data.user.userId,

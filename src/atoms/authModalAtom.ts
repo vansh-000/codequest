@@ -6,7 +6,7 @@ type UserInfo = {
   email: string;
 } | null;
 
-type AuthModalState = {
+export type AuthModalState = {
   isOpen: boolean;
   type: "login" | "register" | "forgotPassword" | "resetPassword";
   user: UserInfo;

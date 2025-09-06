@@ -27,7 +27,7 @@ const Navbar: React.FC<NavbarProps> = () => {
   }, []);
 
   const handleClick = () => {
-    setAuthModalState((prev) => ({ ...prev, isOpen: true }));
+    setAuthModalState((prev: any) => ({ ...prev, isOpen: true }));
   };
 
   const toggleMobileMenu = () => {

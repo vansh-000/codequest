@@ -75,7 +75,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
   const isSubmittedRef = useRef<boolean>(isSubmitted);
   useEffect(() => { isSubmittedRef.current = isSubmitted; }, [isSubmitted]);
 
-  const getStarterCode = (lang: Language): string => {
+  const getStarterCode = useCallback((lang: Language): string => {
     if (!problem.codes || !Array.isArray(problem.codes)) {
       return LANGUAGE_CONFIG[lang].starter("");
     }
@@ -83,15 +83,15 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
       c.language.toLowerCase() === LANGUAGE_CONFIG[lang].name.toLowerCase()
     );
     return codeObj?.starterCode || LANGUAGE_CONFIG[lang].starter("");
-  };
+  }, [problem.codes]);
 
-  const getHelperCode = (lang: Language): string => {
+  const getHelperCode = useCallback((lang: Language): string => {
     if (!problem.codes || !Array.isArray(problem.codes)) return "";
     const codeObj = problem.codes.find(c =>
       c.language.toLowerCase() === LANGUAGE_CONFIG[lang].name.toLowerCase()
     );
     return codeObj?.helperCode || "";
-  };
+  }, [problem.codes]);
 
   useEffect(() => {
     if (!isSubmitted) {
@@ -138,7 +138,8 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     existingSubmission,
     alreadySubmitted,
     availableLanguages,
-    language
+    language,
+    getStarterCode
   ]);
 
   useEffect(() => {
@@ -167,32 +168,35 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     }
   };
 
-  const createSubmission = async (status: SubmissionStatus, resultScore: number = 0, codeValue?: string) => {
-    if (!userId) {
-      setError("You must be logged in to submit solutions.");
-      return null;
-    }
-    if (isSubmittedRef.current) {
-      return null;
-    }
-    try {
-      const submissionData = {
-        code: codeValue ?? code,
-        language,
-        status,
-        score: resultScore
-      };
-      console.log("Submission Data: ", submissionData);
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/user/${userId}/problem/${problem._id}`,
-        submissionData
-      );
-      return response.data;
-    } catch (err: any) {
-      setError(prev => `${prev ? prev + ". " : ""}Failed to save submission: ${err.response?.data?.message || err.message}`);
-      return null;
-    }
-  };
+  const createSubmission = useCallback(
+    async (status: SubmissionStatus, resultScore: number = 0, codeValue?: string) => {
+      if (!userId) {
+        setError("You must be logged in to submit solutions.");
+        return null;
+      }
+      if (isSubmittedRef.current) {
+        return null;
+      }
+      try {
+        const submissionData = {
+          code: codeValue ?? code,
+          language,
+          status,
+          score: resultScore
+        };
+        console.log("Submission Data: ", submissionData);
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/user/${userId}/problem/${problem._id}`,
+          submissionData
+        );
+        return response.data;
+      } catch (err: any) {
+        setError(prev => `${prev ? prev + ". " : ""}Failed to save submission: ${err.response?.data?.message || err.message}`);
+        return null;
+      }
+    },
+    [userId, code, language, problem._id]
+  );
 
   const handleSubmit = useCallback(async () => {
     if (isSubmittedRef.current) {
@@ -237,7 +241,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     } finally {
       setLoading(false);
     }
-  }, [code, language, problem._id]);
+  }, [code, language, createSubmission, getHelperCode]);
   const handleSubmitRef = useRef(handleSubmit);
   useEffect(() => { handleSubmitRef.current = handleSubmit; }, [handleSubmit]);
   useEffect(() => {
@@ -379,10 +383,10 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
 
           {submissionStatus && isSubmitted && (
             <div className={`mt-2 p-2 rounded-md ${submissionStatus === "Accepted"
-                ? "bg-green-800/30 text-green-400"
-                : submissionStatus === "Wrong Answer"
-                  ? "bg-red-800/30 text-red-400"
-                  : "bg-yellow-800/30 text-yellow-400"
+              ? "bg-green-800/30 text-green-400"
+              : submissionStatus === "Wrong Answer"
+                ? "bg-red-800/30 text-red-400"
+                : "bg-yellow-800/30 text-yellow-400"
               }`} aria-live="assertive">
               Status: {submissionStatus}
               {submissionStatus === "Accepted" && <span className="ml-2">✓</span>}
@@ -405,8 +409,8 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
                     <label className="text-sm font-medium mt-4 text-white">Your Output {index + 1}:</label>
                     <div
                       className={`w-full rounded-lg border px-3 py-[10px] mt-2 bg-dark-fill-3 border-transparent text-white ${output[index]?.trim() === testcase.output.trim()
-                          ? "border-green-500"
-                          : "border-red-500"
+                        ? "border-green-500"
+                        : "border-red-500"
                         }`}
                     >
                       {output[index] || ""}

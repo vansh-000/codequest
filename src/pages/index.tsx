@@ -24,24 +24,24 @@ export default function Home() {
         console.log(parsedUser.role);
 
         if (parsedUser) {
-          setAuthState((prev) => ({ ...prev, user: parsedUser }));
+          setAuthState((prev: any) => ({ ...prev, user: parsedUser }));
 
           if (parsedUser.role === "admin") {
             router.push("/admin");
           }
         } else {
-          setAuthState((prev) => ({ ...prev, isOpen: true, type: "login" }));
+          setAuthState((prev: any) => ({ ...prev, isOpen: true, type: "login" }));
           router.push("/auth");
         }
       } catch (error) {
         console.error("Error parsing storedUser:", error);
         localStorage.removeItem("user");
-        setAuthState((prev) => ({ ...prev, isOpen: true, type: "login" }));
+        setAuthState((prev: any) => ({ ...prev, isOpen: true, type: "login" }));
         router.push("/auth");
       }
     } else {
       // No user in localStorage
-      setAuthState((prev) => ({ ...prev, isOpen: true, type: "login" }));
+      setAuthState((prev: any) => ({ ...prev, isOpen: true, type: "login" }));
       router.push("/auth");
     }
   }, [router, setAuthState]);

@@ -20,7 +20,7 @@ const Signup: React.FC = () => {
   };
 
   const handleClick = (type: "login" | "register" | "forgotPassword") => {
-    setAuthModalState((prev) => ({ ...prev, type }));
+    setAuthModalState((prev: any) => ({ ...prev, type }));
   };
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -61,7 +61,7 @@ const Signup: React.FC = () => {
         role: "user",
       });
 
-      setAuthModalState((prev) => ({
+      setAuthModalState((prev: any) => ({
         ...prev,
         type: "login",
       }));

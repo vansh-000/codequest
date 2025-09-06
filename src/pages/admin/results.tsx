@@ -279,7 +279,7 @@ export default function Results() {
                   No Student Data Available
                 </h3>
                 <p className="text-gray-500 dark:text-gray-400 text-center mb-6 max-w-md">
-                  There are currently no student records to display. Students will appear here once they've completed their assessments.
+                  There are currently no student records to display. Students will appear here once they&#39;ve completed their assessments.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
