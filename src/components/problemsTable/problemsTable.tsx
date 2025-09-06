@@ -42,7 +42,6 @@ const ProblemsTable: React.FC<ProblemsTableProps> = ({
         );
         if (!response.ok) throw new Error("Failed to fetch problems");
         const data = await response.json();
-        console.log(data.message);
         setProblems(data.message);
       } catch (err: any) {
         setError(err.message);

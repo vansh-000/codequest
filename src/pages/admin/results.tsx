@@ -24,7 +24,6 @@ export default function Results() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/scores`);
       if (!res.ok) throw new Error("Failed to fetch students");
       const { data }: { data: Student[] } = await res.json();
-      console.log(data);
       setStudents(data);
     } catch (err) {
       console.error("Error fetching students:", err);

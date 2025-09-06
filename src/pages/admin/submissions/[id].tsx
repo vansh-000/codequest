@@ -228,8 +228,6 @@ export default function StudentDetailPage() {
       </div>
     );
   }
-
-  console.log("Student Data:", student);
   const passedQuestions = student.submissions.filter(s => s.status === "Accepted").length;
   const averageMark = student.submissions.length > 0
     ? student.submissions.reduce((sum, s) => sum + s.score, 0) / student.submissions.length

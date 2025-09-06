@@ -184,7 +184,6 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
           status,
           score: resultScore
         };
-        console.log("Submission Data: ", submissionData);
         const response = await axios.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/user/${userId}/problem/${problem._id}`,
           submissionData
@@ -207,8 +206,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
     setError(null);
     setSubmissionStatus(null);
     try {
-      const combined = code + getHelperCode(language); // judge input
-      console.log("Submitting Code: ", combined);
+      const combined = code + getHelperCode(language);
 
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/playground/submit`,
@@ -218,7 +216,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, existingSubmission, al
       const apiError = res.data?.error ?? res.data?.errors;
       if (apiError) {
         setError(apiError);
-        setOutput([]); // optional: clear output on error
+        setOutput([]);
         const saved = await createSubmission("Wrong Answer", 0, code);
         setSubmissionStatus("Wrong Answer");
         if (saved) setIsSubmitted(true);
