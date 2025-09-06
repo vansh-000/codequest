@@ -54,9 +54,6 @@ const Navbar: React.FC<NavbarProps> = () => {
             </span>
           </Link>
           <div className="hidden md:flex items-center space-x-6">
-            <NavLink href="">Problems</NavLink>
-            <NavLink href="">Contests</NavLink>
-            <NavLink href="">Leaderboard</NavLink>
             <Button
               onClick={handleClick}
               label="Login"
